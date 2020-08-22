@@ -276,5 +276,48 @@ namespace Chat.Server.Domain.Tests
 			// act
 			Assert.ThrowsAsync<TargetClientDoesNotExistsException>(async () => await ChatFacade.SendPublicTargetedMessageAsync(theConnectionUid, theTargetedUser, theMessageContent));
 		}
+
+		[Test]
+		public async Task Should_Broadcast_A_Direct_Message_When_User_Sents_A_Private_Message()
+		{
+			// arrage
+			string expectedRoom = "secret-room";
+
+			string theTargetedUser = "Carlton";
+			Guid theConnectionUid = Guid.NewGuid();
+			IMessageContent theMessageContent = Mock.Of<IMessageContent>();
+
+			Client senderClient = new Client
+			{
+				Nickname = "Will",
+				Room = expectedRoom
+			};
+
+			Client targetedClient = new Client
+			{
+				Nickname = "Carlton",
+				Room = expectedRoom
+			};
+			
+			Client theTargetClient = null;
+			TargetedMessage theSentMessage = null;
+
+			ChatFacade.OnUserSentPrivateMessage += (target, message) =>
+			{
+				theTargetClient = target;
+				theSentMessage = message as TargetedMessage;
+			};
+
+			// act
+			await ChatFacade.SendPrivateMessageAsync(theConnectionUid, theTargetedUser, theMessageContent);
+
+			// assert
+			Assert.AreEqual(targetedClient, theTargetClient);
+			Assert.NotNull(theSentMessage);
+
+			Assert.AreEqual(theMessageContent, theSentMessage.Content);
+			Assert.AreEqual(senderClient, theSentMessage.Sender);
+			Assert.AreEqual(targetedClient, theSentMessage.Target);
+		}
 	}
 }

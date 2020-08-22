@@ -23,6 +23,7 @@ namespace Chat.Server.Domain
 		public event RequestNicknameDelegate OnRequestNickname;
 		public event UserConnectsAtRoomDelegate OnUserConnectsAtRoom;
 		public event UserSentMessageDelegate OnUserSentMessage;
+		public event UserSentPrivateMessageDelegate OnUserSentPrivateMessage;
 
 		public async Task ConnectAsync(Guid theConnectionUidOfConnectedClient)
 		{
@@ -68,6 +69,11 @@ namespace Chat.Server.Domain
 			ThrowsErrorWhenTargetClientDoesNotExists(target);
 
 			SendTheMessageForEverbodyInTheRoom(sender.Room, new TargetedMessage(sender, target, theMessageContent));
+		}
+		
+		public Task SendPrivateMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
+		{
+			throw new NotImplementedException();
 		}
 
 		private static void ThrowsErrorWhenTargetClientDoesNotExists(Client target)
