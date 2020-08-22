@@ -22,7 +22,7 @@ namespace Chat.Server.Domain.Tests
 		{
 			ClientFactoryMock = new Mock<IClientFactory>();
 			ClientRepositoryMock = new Mock<IClientRepository>();
-			ChatFacade = new ChatFacade(ClientRepositoryMock.Object);
+			ChatFacade = new ChatFacade(ClientFactoryMock.Object, ClientRepositoryMock.Object);
 		}
 
 		[Test]
@@ -57,7 +57,7 @@ namespace Chat.Server.Domain.Tests
 			await ChatFacade.ConnectAsync(theConnectionUidOfConnectedClient);
 
 			// assert
-			ClientRepositoryMock.Verify(mock => mock.Store(client), Times.Once);
+			ClientRepositoryMock.Verify(mock => mock.StoreAsync(client), Times.Once);
 		}
 	}
 }
