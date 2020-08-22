@@ -45,6 +45,7 @@ namespace Chat.Server.Domain.Tests
 			{
 				actualClient = connectionUid;
 				actualCommand = command as SetNicknameCommand;
+				return Task.CompletedTask;
 			};
 
 			ClientFactoryMock.Setup(mock => mock.Create(expectedConnectionUid)).Returns(expectedClient);
@@ -198,6 +199,7 @@ namespace Chat.Server.Domain.Tests
 			{
 				actualDestinationClient = destination;
 				actualCommand = command as PropagateMessageCommand;
+				return Task.CompletedTask;
 			};
 
 			// act
@@ -246,6 +248,7 @@ namespace Chat.Server.Domain.Tests
 			{
 				actualDestinationClient = destination;
 				actualCommand = command as PropagateMessageCommand;
+				return Task.CompletedTask;
 			};
 
 			// act
@@ -319,6 +322,7 @@ namespace Chat.Server.Domain.Tests
 			{
 				actualDestinationClient = destination;
 				actualCommand = command as PropagateMessageCommand;
+				return Task.CompletedTask;
 			};
 
 			// act

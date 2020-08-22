@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chat.Server.Domain.Tests
 {
@@ -30,6 +31,7 @@ namespace Chat.Server.Domain.Tests
 			{
 				invokedTarget = target;
 				invokedCommand = command;
+				return Task.CompletedTask;
 			};
 
 			DomainEvents.SendCommand(expectedTarget, expectedCommand);
