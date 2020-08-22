@@ -1,6 +1,5 @@
 using Chat.Server.Domain.Entities;
 using Chat.Server.Domain.Factories;
-using Chat.Server.Domain.Messages;
 using Chat.Server.Domain.Repositories;
 using Moq;
 using NUnit.Framework;

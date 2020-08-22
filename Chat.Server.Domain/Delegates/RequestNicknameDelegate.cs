@@ -1,5 +1,4 @@
-﻿using Chat.Server.Domain.Messages;
-using System;
+﻿using System;
 
 namespace Chat.Server.Domain.Delegates
 {
