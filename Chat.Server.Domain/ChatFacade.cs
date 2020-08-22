@@ -20,6 +20,7 @@ namespace Chat.Server.Domain
 		}
 
 		public event RequestNicknameDelegate OnRequestNickname;
+		public event UserConnectsAtRoomDelegate OnUserConnectsAtRoom;
 
 		public async Task ConnectAsync(Guid theConnectionUidOfConnectedClient)
 		{
@@ -38,6 +39,12 @@ namespace Chat.Server.Domain
 			Client client = await ClientRepository.GetByUidAsync(theConnectionUid);
 
 			client.Nickname = theNickname;
+
+			if (string.IsNullOrEmpty(client.Room))
+			{
+				client.Room = "general";
+				OnUserConnectsAtRoom.Invoke(theConnectionUid, client);
+			}
 
 			await ClientRepository.UpdateAsync(client);
 		}

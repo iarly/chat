@@ -80,5 +80,37 @@ namespace Chat.Server.Domain.Tests
 			Assert.AreEqual(theNickname, storedClient.Nickname);
 			ClientRepositoryMock.Verify(mock => mock.UpdateAsync(storedClient), Times.Once);
 		}
+
+		[Test]
+		public async Task Should_Connect_User_To_The_General_Room_When_UpdateNickname_At_The_First_Time()
+		{
+			// arrage
+			string expectedRoom = "general";
+			Guid theConnectionUid = Guid.NewGuid();
+			string theNickname = "Carlton";
+			Client storedClient = new Client
+			{
+				Nickname = null
+			};
+
+			Guid? theConnectionUidOfConnectedClient = null;
+			Client theConnectedClient = null;
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+
+			ChatFacade.OnUserConnectsAtRoom += (connectionUid, client) =>
+			{
+				theConnectionUidOfConnectedClient = connectionUid;
+				theConnectedClient = client;
+			};
+
+			// act
+			await ChatFacade.UpdateNicknameAsync(theConnectionUid, theNickname);
+
+			// assert
+			Assert.AreEqual(expectedRoom, storedClient.Room);
+			Assert.AreEqual(theConnectionUid, theConnectionUidOfConnectedClient);
+			Assert.AreEqual(storedClient, theConnectedClient);
+		}
 	}
 }
