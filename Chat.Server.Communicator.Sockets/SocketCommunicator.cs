@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Chat.Server.Communicator.Sockets
 {
-	public class Communicator : ICommunicator
+	public class SocketCommunicator : ICommunicator
 	{
 		protected IConfiguration Configuration { get; }
 		protected ICommandSerializer CommandSerializer { get; }
@@ -31,11 +31,11 @@ namespace Chat.Server.Communicator.Sockets
 
 		protected EventWaitHandle ConnectionIsDone = new ManualResetEvent(false);
 
-		public Communicator(IConfiguration configuration, ICommandSerializer commandSerializer)
+		public SocketCommunicator(IConfiguration configuration, ICommandSerializer commandSerializer)
 		{
 			Configuration = configuration;
 			CommandSerializer = commandSerializer;
-			Host = Configuration["host"];
+			Host = Configuration["host"] ?? "localhost";
 			Port = int.Parse(Configuration["port"] ?? "33000");
 			MaxRequestsAtTime = int.Parse(Configuration["max-clients"] ?? "100");
 		}

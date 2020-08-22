@@ -14,7 +14,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Chat.Server.Application\Chat.Server.Application.csproj" />
+    <ProjectReference Include="..\Chat.Server.Communicator.Sockets\Chat.Server.Communicator.Sockets.csproj" />
+    <ProjectReference Include="..\Chat.Server.Data.InMemory\Chat.Server.Data.InMemory.csproj" />
     <ProjectReference Include="..\Chat.Server.IoC\Chat.Server.IoC.csproj" />
+    <ProjectReference Include="..\Chat.Server.MessageBroker.Local\Chat.Server.MessageBroker.Local.csproj" />
   </ItemGroup>
 
 </Project>

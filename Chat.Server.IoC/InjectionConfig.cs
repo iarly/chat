@@ -1,10 +1,14 @@
-﻿using Chat.Server.Application;
+﻿using Chat.Serializers;
+using Chat.Server.Application;
 using Chat.Server.Application.Contracts;
+using Chat.Server.Communicator;
+using Chat.Server.Communicator.Sockets;
 using Chat.Server.Data.InMemory;
 using Chat.Server.Domain;
 using Chat.Server.Domain.Entities;
 using Chat.Server.Domain.Factories;
 using Chat.Server.Domain.Repositories;
+using Chat.Server.Domain.Services;
 using Chat.Server.MessageBroker.Local;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +45,9 @@ namespace Chat.Server.IoC
 			services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
 
 			services.AddSingleton<IMessageBroker, DummyMessageBroker>();
+			services.AddSingleton<ICommunicator, SocketCommunicator>();
+
+			services.AddSingleton<ICommandSerializer, CommandSerializer>();
 
 			ServiceProvider = services.BuildServiceProvider();
 		}

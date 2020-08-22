@@ -49,7 +49,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Server.Data.InMemory",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Server.Communicator.Sockets", "Chat.Server.Communicator.Sockets\Chat.Server.Communicator.Sockets.csproj", "{8F206EEA-67B7-4513-8B5D-ED8A9B5DBB61}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Utils", "3 - Utils", "{ED4BCFDA-A69E-42E0-BD8F-14403AF61F55}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Common", "3 - Common", "{ED4BCFDA-A69E-42E0-BD8F-14403AF61F55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Serializers", "Chat.Serializers\Chat.Serializers.csproj", "{357BD854-56BC-4E23-AD10-A6C989D8C71C}"
 EndProject
