@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Chat.Server.Domain
 {
-	public class ChatService
+	public class ChatService : IChatService
 	{
 		protected IDomainEvents DomainEvents { get; }
 		protected IClientFactory ClientFactory { get; }
@@ -68,7 +68,7 @@ namespace Chat.Server.Domain
 
 			SendTheMessageForEverbodyInTheRoom(sender.Room, new TargetedMessage(sender, target, theMessageContent));
 		}
-		
+
 		public async Task SendPrivateMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
 		{
 			Client sender = await ClientRepository.GetByUidAsync(theConnectionUid);
@@ -126,6 +126,6 @@ namespace Chat.Server.Domain
 				DomainEvents.InvokeOnUserConnectsAtRoomEvent(theConnectionUid, client);
 			}
 		}
-		
+
 	}
 }
