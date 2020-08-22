@@ -8,22 +8,20 @@ using System.Threading.Tasks;
 
 namespace Chat.Server.Domain
 {
-	public class ChatFacade
+	public class ChatService
 	{
-		public IClientFactory ClientFactory { get; }
+		protected IDomainEvents DomainEvents { get; }
+		protected IClientFactory ClientFactory { get; }
 		protected IClientRepository ClientRepository { get; }
 
-		public ChatFacade(IClientFactory clientFactory,
+		public ChatService(IDomainEvents domainEvents,
+			IClientFactory clientFactory,
 			IClientRepository clientRepository)
 		{
+			DomainEvents = domainEvents;
 			ClientFactory = clientFactory;
 			ClientRepository = clientRepository;
 		}
-
-		public event RequestNicknameDelegate OnRequestNickname;
-		public event UserConnectsAtRoomDelegate OnUserConnectsAtRoom;
-		public event UserSentMessageDelegate OnUserSentMessage;
-		public event UserSentPrivateMessageDelegate OnUserSentPrivateMessage;
 
 		public async Task ConnectAsync(Guid theConnectionUidOfConnectedClient)
 		{
@@ -31,7 +29,7 @@ namespace Chat.Server.Domain
 
 			await ClientRepository.StoreAsync(client);
 
-			InvokeRequestNicknameEvent(theConnectionUidOfConnectedClient);
+			DomainEvents.InvokeRequestNicknameEvent(theConnectionUidOfConnectedClient);
 		}
 
 		public async Task UpdateNicknameAsync(Guid theConnectionUid, string theNickname)
@@ -112,12 +110,12 @@ namespace Chat.Server.Domain
 
 		private void SendDirectMessageForTargetedClient(Client client, TargetedMessage message)
 		{
-			OnUserSentPrivateMessage.Invoke(client, message);
+			DomainEvents.InvokeOnUserSentPrivateMessageEvent(client, message);
 		}
 
 		private void SendTheMessageForEverbodyInTheRoom(string room, Message message)
 		{
-			OnUserSentMessage.Invoke(room, message);
+			DomainEvents.InvokeOnUserSentMessage(room, message);
 		}
 
 		private void UpdateClientRoomWhenRoomIsNotSet(Guid theConnectionUid, Client client)
@@ -125,25 +123,9 @@ namespace Chat.Server.Domain
 			if (string.IsNullOrEmpty(client.Room))
 			{
 				client.Room = "general";
-				InvokeOnUserConnectsAtRoomEvent(theConnectionUid, client);
+				DomainEvents.InvokeOnUserConnectsAtRoomEvent(theConnectionUid, client);
 			}
 		}
-
-		private void InvokeRequestNicknameEvent(Guid theConnectionUidOfConnectedClient)
-		{
-			if (OnRequestNickname != null)
-			{
-				OnRequestNickname.Invoke(theConnectionUidOfConnectedClient);
-			}
-		}
-
-		private void InvokeOnUserConnectsAtRoomEvent(Guid theConnectionUid, Client client)
-		{
-			if (OnUserConnectsAtRoom != null)
-			{
-				OnUserConnectsAtRoom.Invoke(theConnectionUid, client);
-			}
-		}
-
+		
 	}
 }

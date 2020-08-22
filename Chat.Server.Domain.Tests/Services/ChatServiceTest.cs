@@ -9,20 +9,23 @@ using System.Threading.Tasks;
 
 namespace Chat.Server.Domain.Tests
 {
-	public class ChatFacadeTest
+	public class ChatServiceTest
 	{
+		DomainEvents DomainEvents;
+
 		Mock<IClientFactory> ClientFactoryMock;
 
 		Mock<IClientRepository> ClientRepositoryMock;
 
-		ChatFacade ChatFacade;
+		ChatService ChatFacade;
 
 		[SetUp]
 		public void Setup()
 		{
+			DomainEvents = new DomainEvents();
 			ClientFactoryMock = new Mock<IClientFactory>();
 			ClientRepositoryMock = new Mock<IClientRepository>();
-			ChatFacade = new ChatFacade(ClientFactoryMock.Object, ClientRepositoryMock.Object);
+			ChatFacade = new ChatService(DomainEvents, ClientFactoryMock.Object, ClientRepositoryMock.Object);
 		}
 
 		[Test]
@@ -32,7 +35,7 @@ namespace Chat.Server.Domain.Tests
 			Guid theConnectionUidOfConnectedClient = Guid.NewGuid();
 			Guid? theConnectionUidFromEvent = null;
 
-			ChatFacade.OnRequestNickname += (connectionUid) =>
+			DomainEvents.OnRequestNickname += (connectionUid) =>
 			{
 				theConnectionUidFromEvent = connectionUid;
 			};
@@ -98,7 +101,7 @@ namespace Chat.Server.Domain.Tests
 
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
 
-			ChatFacade.OnUserConnectsAtRoom += (connectionUid, client) =>
+			DomainEvents.OnUserConnectsAtRoom += (connectionUid, client) =>
 			{
 				theConnectionUidOfConnectedClient = connectionUid;
 				theConnectedClient = client;
@@ -189,7 +192,7 @@ namespace Chat.Server.Domain.Tests
 			string theMessageDestinationRoom = null;
 			Message theSentMessage = null;
 
-			ChatFacade.OnUserSentMessage += (room, message) =>
+			DomainEvents.OnUserSentMessage += (room, message) =>
 			{
 				theMessageDestinationRoom = room;
 				theSentMessage = message;
@@ -233,7 +236,7 @@ namespace Chat.Server.Domain.Tests
 			string theMessageDestinationRoom = null;
 			TargetedMessage theSentMessage = null;
 
-			ChatFacade.OnUserSentMessage += (room, message) =>
+			DomainEvents.OnUserSentMessage += (room, message) =>
 			{
 				theMessageDestinationRoom = room;
 				theSentMessage = message as TargetedMessage;
@@ -306,7 +309,7 @@ namespace Chat.Server.Domain.Tests
 			Client theTargetClient = null;
 			TargetedMessage theSentMessage = null;
 
-			ChatFacade.OnUserSentPrivateMessage += (target, message) =>
+			DomainEvents.OnUserSentPrivateMessage += (target, message) =>
 			{
 				theTargetClient = target;
 				theSentMessage = message as TargetedMessage;
