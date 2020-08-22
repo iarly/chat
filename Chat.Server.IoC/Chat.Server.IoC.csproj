@@ -5,11 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.7" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Chat.Server.Application\Chat.Server.Application.csproj" />
+    <ProjectReference Include="..\Chat.Server.Data.InMemory\Chat.Server.Data.InMemory.csproj" />
     <ProjectReference Include="..\Chat.Server.MessageBroker.Local\Chat.Server.MessageBroker.Local.csproj" />
   </ItemGroup>
 
