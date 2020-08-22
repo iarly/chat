@@ -1,5 +1,6 @@
 ﻿using Chat.Server.Domain.Delegates;
 using Chat.Server.Domain.Entities;
+using Chat.Server.Domain.Exceptions;
 using Chat.Server.Domain.Factories;
 using Chat.Server.Domain.Repositories;
 using System;
@@ -21,6 +22,7 @@ namespace Chat.Server.Domain
 
 		public event RequestNicknameDelegate OnRequestNickname;
 		public event UserConnectsAtRoomDelegate OnUserConnectsAtRoom;
+		public event UserSentMessageDelegate OnUserSentMessage;
 
 		public async Task ConnectAsync(Guid theConnectionUidOfConnectedClient)
 		{
@@ -40,6 +42,28 @@ namespace Chat.Server.Domain
 			UpdateClientRoomWhenRoomIsNotSet(theConnectionUid, client);
 
 			await ClientRepository.UpdateAsync(client);
+		}
+
+		public async Task SendPublicMessageAsync(Guid theConnectionUid, string theMessage)
+		{
+			Client client = await ClientRepository.GetByUidAsync(theConnectionUid);
+			
+			ThrowsErrorWhenRoomIsNullOrEmpty(client);
+
+			SendTheMessageForEverbodyInTheRoom(client, theMessage);
+		}
+
+		private static void ThrowsErrorWhenRoomIsNullOrEmpty(Client client)
+		{
+			if (string.IsNullOrEmpty(client.Room))
+			{
+				throw new UserHasNotSetTheRoomException();
+			}
+		}
+
+		private void SendTheMessageForEverbodyInTheRoom(Client sender, string theMessage)
+		{
+			OnUserSentMessage.Invoke(sender.Room, new Message(sender, theMessage));
 		}
 
 		private void UpdateClientRoomWhenRoomIsNotSet(Guid theConnectionUid, Client client)

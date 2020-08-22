@@ -1,4 +1,5 @@
 using Chat.Server.Domain.Entities;
+using Chat.Server.Domain.Exceptions;
 using Chat.Server.Domain.Factories;
 using Chat.Server.Domain.Repositories;
 using Moq;
@@ -135,16 +136,31 @@ namespace Chat.Server.Domain.Tests
 		}
 
 		[Test]
+		public void Should_Return_Error_When_User_Has_Not_Set_Room()
+		{
+			// arrage
+			Guid theConnectionUid = Guid.NewGuid();
+			string theMessage = "Hey Will!";
+			Client storedClient = new Client
+			{
+				Room = ""
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+
+			// act & assert
+			Assert.ThrowsAsync<UserHasNotSetTheRoomException>(async () => await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessage));
+		}
+
+		[Test]
 		public async Task Should_Broadcast_Message_When_User_Sents_A_Public_Message()
 		{
 			// arrage
 			string expectedRoom = "secret-room";
 			Guid theConnectionUid = Guid.NewGuid();
-			string theNickname = "Carlton";
 			string theMessage = "Hey Will!";
 			Client storedClient = new Client
 			{
-				Nickname = theNickname,
 				Room = expectedRoom
 			};
 
