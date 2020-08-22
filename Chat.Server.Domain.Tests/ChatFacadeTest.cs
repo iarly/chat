@@ -112,5 +112,28 @@ namespace Chat.Server.Domain.Tests
 			Assert.AreEqual(theConnectionUid, theConnectionUidOfConnectedClient);
 			Assert.AreEqual(storedClient, theConnectedClient);
 		}
+
+
+		[Test]
+		public async Task Should_Not_Update_Room_When_The_User_Is_Already_At_Any_Room()
+		{
+			// arrage
+			string expectedRoom = "secret-room";
+			Guid theConnectionUid = Guid.NewGuid();
+			string theNickname = "Carlton";
+			Client storedClient = new Client
+			{
+				Nickname = null,
+				Room = expectedRoom
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+
+			// act
+			await ChatFacade.UpdateNicknameAsync(theConnectionUid, theNickname);
+
+			// assert
+			Assert.AreEqual(expectedRoom, storedClient.Room);
+		}
 	}
 }
