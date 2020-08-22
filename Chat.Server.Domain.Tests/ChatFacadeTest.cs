@@ -49,10 +49,7 @@ namespace Chat.Server.Domain.Tests
 		{
 			Command command = Mock.Of<Command>();
 			Guid connectionUid = Guid.NewGuid();
-			Mock<ICommandHandler> commandHandler = new Mock<ICommandHandler>();
-
-			CommandHandlerFactoryMock.Setup(mock => mock.GetHandler(command)).Returns(commandHandler.Object);
-
+			
 			Assert.ThrowsAsync<CommandDoesNotExistsException>(async () => await ChatFacade.ProcessMessageAsync(connectionUid, command));
 		}
 	}
