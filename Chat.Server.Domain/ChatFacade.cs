@@ -71,9 +71,19 @@ namespace Chat.Server.Domain
 			SendTheMessageForEverbodyInTheRoom(sender.Room, new TargetedMessage(sender, target, theMessageContent));
 		}
 		
-		public Task SendPrivateMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
+		public async Task SendPrivateMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
 		{
-			throw new NotImplementedException();
+			Client sender = await ClientRepository.GetByUidAsync(theConnectionUid);
+
+			ThrowsErrorWhenNicknameIsNullOrEmpty(sender);
+
+			ThrowsErrorWhenRoomIsNullOrEmpty(sender);
+
+			Client target = await ClientRepository.FindByNicknameAsync(theTargetedUser);
+
+			ThrowsErrorWhenTargetClientDoesNotExists(target);
+
+			SendDirectMessageForTargetedClient(target, new TargetedMessage(sender, target, theMessageContent));
 		}
 
 		private static void ThrowsErrorWhenTargetClientDoesNotExists(Client target)
@@ -98,6 +108,11 @@ namespace Chat.Server.Domain
 			{
 				throw new UserHasNotSetTheRoomException();
 			}
+		}
+
+		private void SendDirectMessageForTargetedClient(Client client, TargetedMessage message)
+		{
+			OnUserSentPrivateMessage.Invoke(client, message);
 		}
 
 		private void SendTheMessageForEverbodyInTheRoom(string room, Message message)

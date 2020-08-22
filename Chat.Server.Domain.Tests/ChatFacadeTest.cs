@@ -298,7 +298,11 @@ namespace Chat.Server.Domain.Tests
 				Nickname = "Carlton",
 				Room = expectedRoom
 			};
-			
+
+			ClientRepositoryMock.Setup(mock => mock.FindByNicknameAsync(theTargetedUser)).Returns(Task.FromResult(targetedClient));
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
+
 			Client theTargetClient = null;
 			TargetedMessage theSentMessage = null;
 
