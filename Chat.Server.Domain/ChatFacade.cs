@@ -44,7 +44,7 @@ namespace Chat.Server.Domain
 			await ClientRepository.UpdateAsync(client);
 		}
 
-		public async Task SendPublicMessageAsync(Guid theConnectionUid, string theMessage)
+		public async Task SendPublicMessageAsync(Guid theConnectionUid, IMessageContent theMessageContent)
 		{
 			Client client = await ClientRepository.GetByUidAsync(theConnectionUid);
 			
@@ -52,7 +52,7 @@ namespace Chat.Server.Domain
 
 			ThrowsErrorWhenRoomIsNullOrEmpty(client);
 
-			SendTheMessageForEverbodyInTheRoom(client, theMessage);
+			SendTheMessageForEverbodyInTheRoom(client, theMessageContent);
 		}
 
 		private static void ThrowsErrorWhenNicknameIsNullOrEmpty(Client client)
@@ -71,9 +71,9 @@ namespace Chat.Server.Domain
 			}
 		}
 
-		private void SendTheMessageForEverbodyInTheRoom(Client sender, string theMessage)
+		private void SendTheMessageForEverbodyInTheRoom(Client sender, IMessageContent theMessageContent)
 		{
-			OnUserSentMessage.Invoke(sender.Room, new Message(sender, theMessage));
+			OnUserSentMessage.Invoke(sender.Room, new Message(sender, theMessageContent));
 		}
 
 		private void UpdateClientRoomWhenRoomIsNotSet(Guid theConnectionUid, Client client)

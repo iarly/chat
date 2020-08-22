@@ -2,13 +2,13 @@
 {
 	public class Message
 	{
-		public Message(Client sender, string text)
+		public Message(Client sender, IMessageContent content)
 		{
 			Sender = sender;
-			Text = text;
+			Content = content;
 		}
 
 		public Client Sender { get; set; }
-		public string Text { get; set; }
+		public IMessageContent Content { get; set; }
 	}
 }

@@ -140,7 +140,7 @@ namespace Chat.Server.Domain.Tests
 		{
 			// arrage
 			Guid theConnectionUid = Guid.NewGuid();
-			string theMessage = "Hey Will!";
+			IMessageContent theMessageContent = Mock.Of<IMessageContent>();
 			Client storedClient = new Client
 			{
 				Nickname = "me",
@@ -150,7 +150,7 @@ namespace Chat.Server.Domain.Tests
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
 
 			// act & assert
-			Assert.ThrowsAsync<UserHasNotSetTheRoomException>(async () => await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessage));
+			Assert.ThrowsAsync<UserHasNotSetTheRoomException>(async () => await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessageContent));
 		}
 
 		[Test]
@@ -158,7 +158,7 @@ namespace Chat.Server.Domain.Tests
 		{
 			// arrage
 			Guid theConnectionUid = Guid.NewGuid();
-			string theMessage = "Hey Will!";
+			IMessageContent theMessageContent = Mock.Of<IMessageContent>();
 			Client storedClient = new Client
 			{
 				Room = ""
@@ -167,7 +167,7 @@ namespace Chat.Server.Domain.Tests
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
 
 			// act & assert
-			Assert.ThrowsAsync<UserHasNotsetTheNicknameException>(async () => await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessage));
+			Assert.ThrowsAsync<UserHasNotsetTheNicknameException>(async () => await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessageContent));
 		}
 
 		[Test]
@@ -176,17 +176,18 @@ namespace Chat.Server.Domain.Tests
 			// arrage
 			string expectedRoom = "secret-room";
 			Guid theConnectionUid = Guid.NewGuid();
-			string theMessage = "Hey Will!";
+			IMessageContent theMessageContent = Mock.Of<IMessageContent>();
+
 			Client storedClient = new Client
 			{
 				Nickname = "Will",
 				Room = expectedRoom
 			};
 
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+
 			string theMessageDestinationRoom = null;
 			Message theSentMessage = null;
-
-			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
 
 			ChatFacade.OnUserSentMessage += (room, message) =>
 			{
@@ -195,11 +196,11 @@ namespace Chat.Server.Domain.Tests
 			};
 
 			// act
-			await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessage);
+			await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessageContent);
 
 			// assert
 			Assert.AreEqual(expectedRoom, theMessageDestinationRoom);
-			Assert.AreEqual(theMessage, theSentMessage.Text);
+			Assert.AreEqual(theMessageContent, theSentMessage.Content);
 			Assert.AreEqual(storedClient, theSentMessage.Sender);
 		}
 	}
