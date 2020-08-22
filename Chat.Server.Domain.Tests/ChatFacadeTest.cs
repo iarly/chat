@@ -53,7 +53,7 @@ namespace Chat.Server.Domain.Tests
 
 			CommandHandlerFactoryMock.Setup(mock => mock.GetHandler(command)).Returns(commandHandler.Object);
 
-			Assert.ThrowsAsync<CommandDoestNotExistsException>(async () => await ChatFacade.ProcessMessageAsync(connectionUid, command));
+			Assert.ThrowsAsync<CommandDoesNotExistsException>(async () => await ChatFacade.ProcessMessageAsync(connectionUid, command));
 		}
 	}
 }
