@@ -323,5 +323,32 @@ namespace Chat.Server.Domain.Tests
 			Assert.AreEqual(senderClient, theSentMessage.Sender);
 			Assert.AreEqual(targetedClient, theSentMessage.Target);
 		}
+
+		[Test]
+		public void Should_Not_Broadcast_Direct_Message_When_The_Targeted_Client_Does_Not_Exists()
+		{
+			// arrage
+			string expectedRoom = "secret-room";
+
+			string theTargetedUser = "Carlton";
+			Guid theConnectionUid = Guid.NewGuid();
+			IMessageContent theMessageContent = Mock.Of<IMessageContent>();
+
+			Client senderClient = new Client
+			{
+				Nickname = "Will",
+				Room = expectedRoom
+			};
+
+			Client targetedClient = null;
+
+			ClientRepositoryMock.Setup(mock => mock.FindByNicknameAsync(theTargetedUser)).Returns(Task.FromResult(targetedClient));
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
+
+			// act
+			Assert.ThrowsAsync<TargetClientDoesNotExistsException>(async () => await ChatFacade.SendPublicTargetedMessageAsync(theConnectionUid, theTargetedUser, theMessageContent));
+		}
+
 	}
 }
