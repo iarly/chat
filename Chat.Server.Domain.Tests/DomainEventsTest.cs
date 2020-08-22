@@ -51,27 +51,6 @@ namespace Chat.Server.Domain.Tests
 		}
 
 		[Test]
-		public void Should_Invoke_OnUserSentMessage()
-		{
-			string expectedRoomsName = "My Room";
-			Message expectedMessage = new Message(null, null);
-
-			string invokedRoomsName = null;
-			Message invokedMessage = null;
-
-			DomainEvents.OnUserSentMessage += (roomsName, message) =>
-			{
-				invokedRoomsName = roomsName;
-				invokedMessage = message;
-			};
-
-			DomainEvents.InvokeOnUserSentMessage(expectedRoomsName, expectedMessage);
-
-			Assert.AreEqual(expectedRoomsName, invokedRoomsName);
-			Assert.AreEqual(expectedMessage, invokedMessage);
-		}
-
-		[Test]
 		public void Should_Invoke_OnUserSentPrivateMessage()
 		{
 			Client expectedTarget = new Client();
@@ -80,13 +59,13 @@ namespace Chat.Server.Domain.Tests
 			Client invokedTarget = null;
 			Message invokedMessage = null;
 
-			DomainEvents.OnUserSentPrivateMessage += (target, message) =>
+			DomainEvents.OnUserSendMessage += (target, message) =>
 			{
 				invokedTarget = target;
 				invokedMessage = message;
 			};
 
-			DomainEvents.InvokeOnUserSentPrivateMessageEvent(expectedTarget, expectedMessage);
+			DomainEvents.InvokeOnUserSendMessage(expectedTarget, expectedMessage);
 
 			Assert.AreEqual(expectedTarget, invokedTarget);
 			Assert.AreEqual(expectedMessage, invokedMessage);

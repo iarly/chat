@@ -8,12 +8,10 @@ namespace Chat.Server.Domain
 	{
 		event RequestNicknameDelegate OnRequestNickname;
 		event UserConnectsAtRoomDelegate OnUserConnectsAtRoom;
-		event UserSentMessageDelegate OnUserSentMessage;
-		event UserSentPrivateMessageDelegate OnUserSentPrivateMessage;
+		event UserSendMessageDelegate OnUserSendMessage;
 
+		void InvokeOnUserSendMessage(Client destination, Message message);
 		void InvokeOnUserConnectsAtRoomEvent(Guid theConnectionUid, Client client);
-		void InvokeOnUserSentMessage(string room, Message message);
-		void InvokeOnUserSentPrivateMessageEvent(Client client, TargetedMessage message);
 		void InvokeRequestNicknameEvent(Guid theConnectionUidOfConnectedClient);
 	}
 }

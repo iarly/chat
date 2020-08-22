@@ -10,18 +10,11 @@ namespace Chat.Server.Domain
 
 		public event UserConnectsAtRoomDelegate OnUserConnectsAtRoom;
 
-		public event UserSentMessageDelegate OnUserSentMessage;
+		public event UserSendMessageDelegate OnUserSendMessage;
 
-		public event UserSentPrivateMessageDelegate OnUserSentPrivateMessage;
-
-		public void InvokeOnUserSentMessage(string room, Message message)
+		public void InvokeOnUserSendMessage(Client destination, Message message)
 		{
-			OnUserSentMessage.Invoke(room, message);
-		}
-
-		public void InvokeOnUserSentPrivateMessageEvent(Client client, TargetedMessage message)
-		{
-			OnUserSentPrivateMessage.Invoke(client, message);
+			OnUserSendMessage.Invoke(destination, message);
 		}
 
 		public void InvokeRequestNicknameEvent(Guid theConnectionUidOfConnectedClient)

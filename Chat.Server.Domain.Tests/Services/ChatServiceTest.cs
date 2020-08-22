@@ -5,6 +5,8 @@ using Chat.Server.Domain.Repositories;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Chat.Server.Domain.Tests
@@ -187,14 +189,17 @@ namespace Chat.Server.Domain.Tests
 				Room = expectedRoom
 			};
 
+			Client destinationClient = new Client();
+
+			ClientRepositoryMock.Setup(mock => mock.GetAllClientInTheRoomAsync(expectedRoom)).Returns(Task.FromResult(new List<Client> { destinationClient }.AsEnumerable()));
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
 
-			string theMessageDestinationRoom = null;
+			Client actualDestinationClient = null;
 			Message theSentMessage = null;
 
-			DomainEvents.OnUserSentMessage += (room, message) =>
+			DomainEvents.OnUserSendMessage += (destination, message) =>
 			{
-				theMessageDestinationRoom = room;
+				actualDestinationClient = destination;
 				theSentMessage = message;
 			};
 
@@ -202,7 +207,7 @@ namespace Chat.Server.Domain.Tests
 			await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessageContent);
 
 			// assert
-			Assert.AreEqual(expectedRoom, theMessageDestinationRoom);
+			Assert.AreEqual(destinationClient, actualDestinationClient);
 			Assert.AreEqual(theMessageContent, theSentMessage.Content);
 			Assert.AreEqual(storedClient, theSentMessage.Sender);
 		}
@@ -229,16 +234,20 @@ namespace Chat.Server.Domain.Tests
 				Room = expectedRoom
 			};
 
+			Client destinationClient = new Client();
+
+			ClientRepositoryMock.Setup(mock => mock.GetAllClientInTheRoomAsync(expectedRoom)).Returns(Task.FromResult(new List<Client> { destinationClient }.AsEnumerable()));
+
 			ClientRepositoryMock.Setup(mock => mock.FindByNicknameAsync(theTargetedUser)).Returns(Task.FromResult(targetedClient));
 
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
 
-			string theMessageDestinationRoom = null;
+			Client actualDestinationClient = null;
 			TargetedMessage theSentMessage = null;
 
-			DomainEvents.OnUserSentMessage += (room, message) =>
+			DomainEvents.OnUserSendMessage += (destination, message) =>
 			{
-				theMessageDestinationRoom = room;
+				actualDestinationClient = destination;
 				theSentMessage = message as TargetedMessage;
 			};
 
@@ -246,7 +255,7 @@ namespace Chat.Server.Domain.Tests
 			await ChatFacade.SendPublicTargetedMessageAsync(theConnectionUid, theTargetedUser, theMessageContent);
 
 			// assert
-			Assert.AreEqual(expectedRoom, theMessageDestinationRoom);
+			Assert.AreEqual(destinationClient, actualDestinationClient);
 			Assert.NotNull(theSentMessage);
 
 			Assert.AreEqual(theMessageContent, theSentMessage.Content);
@@ -306,12 +315,12 @@ namespace Chat.Server.Domain.Tests
 
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
 
-			Client theTargetClient = null;
+			Client actualDestinationClient = null;
 			TargetedMessage theSentMessage = null;
 
-			DomainEvents.OnUserSentPrivateMessage += (target, message) =>
+			DomainEvents.OnUserSendMessage += (destination, message) =>
 			{
-				theTargetClient = target;
+				actualDestinationClient = destination;
 				theSentMessage = message as TargetedMessage;
 			};
 
@@ -319,7 +328,7 @@ namespace Chat.Server.Domain.Tests
 			await ChatFacade.SendPrivateMessageAsync(theConnectionUid, theTargetedUser, theMessageContent);
 
 			// assert
-			Assert.AreEqual(targetedClient, theTargetClient);
+			Assert.AreEqual(targetedClient, actualDestinationClient);
 			Assert.NotNull(theSentMessage);
 
 			Assert.AreEqual(theMessageContent, theSentMessage.Content);

@@ -3,19 +3,12 @@ using Chat.Server.Domain.Exceptions;
 using Chat.Server.Domain.Factories;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Chat.Server.Domain.Tests
 {
 	public class ChatFacadeTest
 	{
-		private Mock<IDomainEvents> DomainEventsMock;
-		private Mock<ICommandService> CommandServiceMock;
-		private Mock<IChatService> ChatServiceMock;
 		private Mock<ICommandHandlerFactory> CommandHandlerFactoryMock;
 
 		ChatFacade ChatFacade;

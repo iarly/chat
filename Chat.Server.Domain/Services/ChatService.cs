@@ -108,14 +108,19 @@ namespace Chat.Server.Domain
 			}
 		}
 
-		private void SendDirectMessageForTargetedClient(Client client, TargetedMessage message)
+		private void SendDirectMessageForTargetedClient(Client destination, TargetedMessage message)
 		{
-			DomainEvents.InvokeOnUserSentPrivateMessageEvent(client, message);
+			DomainEvents.InvokeOnUserSendMessage(destination, message);
 		}
 
-		private void SendTheMessageForEverbodyInTheRoom(string room, Message message)
+		private async Task SendTheMessageForEverbodyInTheRoom(string room, Message message)
 		{
-			DomainEvents.InvokeOnUserSentMessage(room, message);
+			var clients = await ClientRepository.GetAllClientInTheRoomAsync(room);
+
+			foreach (var client in clients)
+			{
+				DomainEvents.InvokeOnUserSendMessage(client, message);
+			}
 		}
 
 		private void UpdateClientRoomWhenRoomIsNotSet(Guid theConnectionUid, Client client)
