@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Chat.Server.MessageBroker.Local
 {
-	public class MessageBroker : IMessageBroker
+	public class DummyMessageBroker : IMessageBroker
 	{
 		protected static IDictionary<Guid, BrokerSendCommandDelegate> Delegates = new Dictionary<Guid, BrokerSendCommandDelegate>();
 
