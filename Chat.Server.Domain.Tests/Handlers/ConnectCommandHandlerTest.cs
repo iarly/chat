@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Chat.Server.Domain.Tests.Handlers
 {
-	public class ConnectHandlerTest
+	public class ConnectCommandHandlerTest
 	{
 		Mock<IChatService> ChatServiceMock;
 		ConnectCommandHandler ConnectCommandHandler;
