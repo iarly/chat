@@ -12,13 +12,13 @@ namespace Chat.Server.Domain.Tests.Handlers
 	public class SendMessageCommandHandlerTest
 	{
 		Mock<IChatService> ChatServiceMock;
-		SendMessageCommandHandler ConnectCommandHandler;
+		SendMessageCommandHandler SendMessageCommand;
 
 		[SetUp]
 		public void SetUp()
 		{
 			ChatServiceMock = new Mock<IChatService>();
-			ConnectCommandHandler = new SendMessageCommandHandler(ChatServiceMock.Object);
+			SendMessageCommand = new SendMessageCommandHandler(ChatServiceMock.Object);
 		}
 
 		[Test]
@@ -34,7 +34,7 @@ namespace Chat.Server.Domain.Tests.Handlers
 				Private = false
 			};
 
-			ConnectCommandHandler.ProcessAsync(command);
+			SendMessageCommand.ProcessAsync(command);
 
 			ChatServiceMock.Verify(mock => mock.SendPublicMessageAsync(connectionUid, messageContent));
 		}
@@ -54,7 +54,7 @@ namespace Chat.Server.Domain.Tests.Handlers
 				TargetClient = targetedClient
 			};
 
-			ConnectCommandHandler.ProcessAsync(command);
+			SendMessageCommand.ProcessAsync(command);
 
 			ChatServiceMock.Verify(mock => mock.SendPublicTargetedMessageAsync(connectionUid, targetedClient, messageContent));
 		}
@@ -74,7 +74,7 @@ namespace Chat.Server.Domain.Tests.Handlers
 				Private = true
 			};
 
-			ConnectCommandHandler.ProcessAsync(command);
+			SendMessageCommand.ProcessAsync(command);
 
 			ChatServiceMock.Verify(mock => mock.SendPrivateMessageAsync(connectionUid, targetedClient, messageContent));
 		}
