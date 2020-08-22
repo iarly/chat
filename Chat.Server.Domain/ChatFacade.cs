@@ -15,13 +15,13 @@ namespace Chat.Server.Domain
 			CommandHandlerFactory = commandHandlerFactory;
 		}
 
-		public async Task ProcessMessageAsync(Guid connectionUid, Command command)
+		public async Task ProcessMessageAsync(Command command)
 		{
 			var handler = CommandHandlerFactory.GetHandler(command);
 
 			ThrowsExceptionWhenHandlerIsNull(handler);
 
-			await handler.ProcessAsync(connectionUid, command);
+			await handler.ProcessAsync(command);
 		}
 
 		private static void ThrowsExceptionWhenHandlerIsNull(ICommandHandler handler)

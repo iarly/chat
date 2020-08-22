@@ -32,25 +32,23 @@ namespace Chat.Server.Domain.Tests
 		public async Task Should_Process_Command_When_Command_Exists()
 		{
 			Command command = Mock.Of<Command>();
-			Guid connectionUid = Guid.NewGuid();
 			Mock<ICommandHandler> commandHandler = new Mock<ICommandHandler>();
 
 			CommandHandlerFactoryMock.Setup(mock => mock.GetHandler(command)).Returns(commandHandler.Object);
 
-			await ChatFacade.ProcessMessageAsync(connectionUid, command);
+			await ChatFacade.ProcessMessageAsync(command);
 
 			CommandHandlerFactoryMock.Verify(mock => mock.GetHandler(command), Times.Once);
 
-			commandHandler.Verify(mock => mock.ProcessAsync(connectionUid, command), Times.Once);
+			commandHandler.Verify(mock => mock.ProcessAsync(command), Times.Once);
 		}
 
 		[Test]
 		public void Should_Throw_NotFoundCommandHandlerException_When_CommandHandler_Does_Not_Exists()
 		{
 			Command command = Mock.Of<Command>();
-			Guid connectionUid = Guid.NewGuid();
 			
-			Assert.ThrowsAsync<CommandDoesNotExistsException>(async () => await ChatFacade.ProcessMessageAsync(connectionUid, command));
+			Assert.ThrowsAsync<CommandDoesNotExistsException>(async () => await ChatFacade.ProcessMessageAsync(command));
 		}
 	}
 }
