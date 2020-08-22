@@ -59,5 +59,24 @@ namespace Chat.Server.Domain.Tests
 			// assert
 			ClientRepositoryMock.Verify(mock => mock.StoreAsync(client), Times.Once);
 		}
+
+		public async Task Should_Update_The_Client_Information_With_They_Nickname_When_UpdateNickname()
+		{
+			// arrage
+			Guid theConnectionUid = Guid.NewGuid();
+			string theNickname = "Will Smith";
+
+			Client storedClient = new Client
+			{
+				Nickname = "Agent J"
+			};
+
+			// act
+			await ChatFacade.UpdateNicknameAsync(theConnectionUid, theNickname);
+
+			// assert
+			Assert.AreEqual(theNickname, storedClient.Nickname);			
+			ClientRepositoryMock.Verify(mock => mock.UpdateAsync(storedClient), Times.Once);
+		}
 	}
 }
