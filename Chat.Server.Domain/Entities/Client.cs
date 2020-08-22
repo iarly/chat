@@ -2,5 +2,6 @@
 {
 	public class Client
 	{
+		public string Nickname { get; set; }
 	}
 }

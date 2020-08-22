@@ -12,7 +12,7 @@ namespace Chat.Server.Domain
 		public IClientFactory ClientFactory { get; }
 		protected IClientRepository ClientRepository { get; }
 
-		public ChatFacade(IClientFactory clientFactory, 
+		public ChatFacade(IClientFactory clientFactory,
 			IClientRepository clientRepository)
 		{
 			ClientFactory = clientFactory;
@@ -27,7 +27,19 @@ namespace Chat.Server.Domain
 
 			await ClientRepository.StoreAsync(client);
 
-			OnRequestNickname.Invoke(theConnectionUidOfConnectedClient);
+			if (OnRequestNickname != null)
+			{
+				OnRequestNickname.Invoke(theConnectionUidOfConnectedClient);
+			}
+		}
+
+		public async Task UpdateNicknameAsync(Guid theConnectionUid, string theNickname)
+		{
+			Client client = await ClientRepository.GetByUidAsync(theConnectionUid);
+
+			client.Nickname = theNickname;
+
+			await ClientRepository.UpdateAsync(client);
 		}
 	}
 }
