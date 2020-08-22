@@ -28,10 +28,7 @@ namespace Chat.Server.Domain
 
 			await ClientRepository.StoreAsync(client);
 
-			if (OnRequestNickname != null)
-			{
-				OnRequestNickname.Invoke(theConnectionUidOfConnectedClient);
-			}
+			InvokeRequestNicknameEvent(theConnectionUidOfConnectedClient);
 		}
 
 		public async Task UpdateNicknameAsync(Guid theConnectionUid, string theNickname)
@@ -40,13 +37,34 @@ namespace Chat.Server.Domain
 
 			client.Nickname = theNickname;
 
+			UpdateClientRoomWhenRoomIsNotSet(theConnectionUid, client);
+
+			await ClientRepository.UpdateAsync(client);
+		}
+
+		private void UpdateClientRoomWhenRoomIsNotSet(Guid theConnectionUid, Client client)
+		{
 			if (string.IsNullOrEmpty(client.Room))
 			{
 				client.Room = "general";
+				InvokeOnUserConnectsAtRoomEvent(theConnectionUid, client);
+			}
+		}
+
+		private void InvokeRequestNicknameEvent(Guid theConnectionUidOfConnectedClient)
+		{
+			if (OnRequestNickname != null)
+			{
+				OnRequestNickname.Invoke(theConnectionUidOfConnectedClient);
+			}
+		}
+
+		private void InvokeOnUserConnectsAtRoomEvent(Guid theConnectionUid, Client client)
+		{
+			if (OnUserConnectsAtRoom != null)
+			{
 				OnUserConnectsAtRoom.Invoke(theConnectionUid, client);
 			}
-
-			await ClientRepository.UpdateAsync(client);
 		}
 	}
 }
