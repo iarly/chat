@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chat.Server.Domain
 {
-	public class ChatFacade
+	public class ChatFacade : IChatFacade
 	{
 		private ICommandHandlerFactory CommandHandlerFactory;
 
