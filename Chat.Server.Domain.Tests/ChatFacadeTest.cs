@@ -112,7 +112,6 @@ namespace Chat.Server.Domain.Tests
 			Assert.AreEqual(storedClient, theConnectedClient);
 		}
 
-
 		[Test]
 		public async Task Should_Not_Update_Room_When_The_User_Is_Already_At_Any_Room()
 		{
@@ -133,6 +132,40 @@ namespace Chat.Server.Domain.Tests
 
 			// assert
 			Assert.AreEqual(expectedRoom, storedClient.Room);
+		}
+
+		[Test]
+		public async Task Should_Broadcast_Message_When_User_Sents_A_Public_Message()
+		{
+			// arrage
+			string expectedRoom = "secret-room";
+			Guid theConnectionUid = Guid.NewGuid();
+			string theNickname = "Carlton";
+			string theMessage = "Hey Will!";
+			Client storedClient = new Client
+			{
+				Nickname = theNickname,
+				Room = expectedRoom
+			};
+
+			string theMessageDestinationRoom = null;
+			Message theSentMessage = null;
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+
+			ChatFacade.OnUserSentMessage += (room, message) =>
+			{
+				theMessageDestinationRoom = room;
+				theSentMessage = message;
+			};
+
+			// act
+			await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessage);
+
+			// assert
+			Assert.AreEqual(expectedRoom, theMessageDestinationRoom);
+			Assert.AreEqual(theMessage, theSentMessage.Text);
+			Assert.AreEqual(storedClient, theSentMessage.Sender);
 		}
 	}
 }
