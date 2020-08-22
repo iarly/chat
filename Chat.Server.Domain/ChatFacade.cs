@@ -65,7 +65,17 @@ namespace Chat.Server.Domain
 
 			Client target = await ClientRepository.FindByNicknameAsync(theTargetedUser);
 
+			ThrowsErrorWhenTargetClientDoesNotExists(target);
+
 			SendTheMessageForEverbodyInTheRoom(sender.Room, new TargetedMessage(sender, target, theMessageContent));
+		}
+
+		private static void ThrowsErrorWhenTargetClientDoesNotExists(Client target)
+		{
+			if (target == null)
+			{
+				throw new TargetClientDoesNotExistsException();
+			}
 		}
 
 		private static void ThrowsErrorWhenNicknameIsNullOrEmpty(Client client)
