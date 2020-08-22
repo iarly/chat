@@ -203,5 +203,52 @@ namespace Chat.Server.Domain.Tests
 			Assert.AreEqual(theMessageContent, theSentMessage.Content);
 			Assert.AreEqual(storedClient, theSentMessage.Sender);
 		}
+
+		[Test]
+		public async Task Should_Broadcast_A_Targeted_Message_When_User_Sents_A_Targeted_Public_Message()
+		{
+			// arrage
+			string expectedRoom = "secret-room";
+
+			string theTargetedUser = "Carlton";
+			Guid theConnectionUid = Guid.NewGuid();
+			IMessageContent theMessageContent = Mock.Of<IMessageContent>();
+
+			Client senderClient = new Client
+			{
+				Nickname = "Will",
+				Room = expectedRoom
+			};
+
+			Client targetedClient = new Client
+			{
+				Nickname = "Carlton",
+				Room = expectedRoom
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.FindByNicknameAsync(theTargetedUser)).Returns(Task.FromResult(senderClient));
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
+
+			string theMessageDestinationRoom = null;
+			TargetedMessage theSentMessage = null;
+
+			ChatFacade.OnUserSentMessage += (room, message) =>
+			{
+				theMessageDestinationRoom = room;
+				theSentMessage = message as TargetedMessage;
+			};
+
+			// act
+			await ChatFacade.SendPublicTargetedMessageAsync(theConnectionUid, theTargetedUser, theMessageContent);
+
+			// assert
+			Assert.AreEqual(expectedRoom, theMessageDestinationRoom);
+			Assert.NotNull(theSentMessage);
+
+			Assert.AreEqual(theMessageContent, theSentMessage.Content);
+			Assert.AreEqual(senderClient, theSentMessage.Sender);
+			Assert.AreEqual(targetedClient, theSentMessage.Target);
+		}
 	}
 }

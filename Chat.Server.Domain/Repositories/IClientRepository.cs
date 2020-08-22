@@ -9,5 +9,6 @@ namespace Chat.Server.Domain.Repositories
 		Task StoreAsync(Client client);
 		Task UpdateAsync(Client storedClient);
 		Task<Client> GetByUidAsync(Guid theConnectionUid);
+		Task<Client> FindByNicknameAsync(string theTargetedUser);
 	}
 }

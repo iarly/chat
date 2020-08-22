@@ -100,5 +100,10 @@ namespace Chat.Server.Domain
 				OnUserConnectsAtRoom.Invoke(theConnectionUid, client);
 			}
 		}
+
+		public Task SendPublicTargetedMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
