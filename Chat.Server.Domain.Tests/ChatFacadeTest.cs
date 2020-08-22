@@ -143,6 +143,7 @@ namespace Chat.Server.Domain.Tests
 			string theMessage = "Hey Will!";
 			Client storedClient = new Client
 			{
+				Nickname = "me",
 				Room = ""
 			};
 
@@ -150,6 +151,23 @@ namespace Chat.Server.Domain.Tests
 
 			// act & assert
 			Assert.ThrowsAsync<UserHasNotSetTheRoomException>(async () => await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessage));
+		}
+
+		[Test]
+		public void Should_Return_Error_When_User_Has_Not_Set_Nickname()
+		{
+			// arrage
+			Guid theConnectionUid = Guid.NewGuid();
+			string theMessage = "Hey Will!";
+			Client storedClient = new Client
+			{
+				Room = ""
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+
+			// act & assert
+			Assert.ThrowsAsync<UserHasNotsetTheNicknameException>(async () => await ChatFacade.SendPublicMessageAsync(theConnectionUid, theMessage));
 		}
 
 		[Test]
@@ -161,6 +179,7 @@ namespace Chat.Server.Domain.Tests
 			string theMessage = "Hey Will!";
 			Client storedClient = new Client
 			{
+				Nickname = "Will",
 				Room = expectedRoom
 			};
 

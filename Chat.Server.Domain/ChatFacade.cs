@@ -48,9 +48,19 @@ namespace Chat.Server.Domain
 		{
 			Client client = await ClientRepository.GetByUidAsync(theConnectionUid);
 			
+			ThrowsErrorWhenNicknameIsNullOrEmpty(client);
+
 			ThrowsErrorWhenRoomIsNullOrEmpty(client);
 
 			SendTheMessageForEverbodyInTheRoom(client, theMessage);
+		}
+
+		private static void ThrowsErrorWhenNicknameIsNullOrEmpty(Client client)
+		{
+			if (string.IsNullOrEmpty(client.Nickname))
+			{
+				throw new UserHasNotsetTheNicknameException();
+			}
 		}
 
 		private static void ThrowsErrorWhenRoomIsNullOrEmpty(Client client)
