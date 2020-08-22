@@ -1,10 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Chat.Server.Domain.Entities;
+using System;
 
 namespace Chat.Server.Domain.Factories
 {
-	public class ClientFactory
+	public class ClientFactory : IClientFactory
 	{
+		public Client Create(Guid connectionUid)
+		{
+			return new Client
+			{
+				ConnectionUid = connectionUid
+			};
+		}
 	}
 }
