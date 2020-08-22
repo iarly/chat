@@ -16,19 +16,19 @@ namespace Chat.Server.Domain.Commands.Handlers
 			if (command.Private)
 			{
 				await ChatService.SendPrivateMessageAsync(command.ConnectionUid,
-					command.TargetClient,
-					command.MessageContent);
+					command.TargetClientNickname,
+					command.Content);
 			}
 			else if (command.IsTargeted)
 			{
 				await ChatService.SendPublicTargetedMessageAsync(command.ConnectionUid,
-					command.TargetClient,
-					command.MessageContent);
+					command.TargetClientNickname,
+					command.Content);
 			}
 			else
 			{
 				await ChatService.SendPublicMessageAsync(command.ConnectionUid,
-					command.MessageContent);
+					command.Content);
 			}
 		}
 	}

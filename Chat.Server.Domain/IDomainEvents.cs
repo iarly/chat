@@ -1,17 +1,13 @@
-﻿using Chat.Server.Domain.Delegates;
+﻿using Chat.Server.Domain.Commands;
+using Chat.Server.Domain.Delegates;
 using Chat.Server.Domain.Entities;
-using System;
 
 namespace Chat.Server.Domain
 {
 	public interface IDomainEvents
 	{
-		event RequestNicknameDelegate OnRequestNickname;
-		event UserConnectsAtRoomDelegate OnUserConnectsAtRoom;
-		event UserSendMessageDelegate OnUserSendMessage;
+		event CommandDelegate OnCommand;
 
-		void InvokeOnUserSendMessage(Client destination, Message message);
-		void InvokeOnUserConnectsAtRoomEvent(Guid theConnectionUid, Client client);
-		void InvokeRequestNicknameEvent(Guid theConnectionUidOfConnectedClient);
+		void SendCommand(Client destination, Command command);
 	}
 }

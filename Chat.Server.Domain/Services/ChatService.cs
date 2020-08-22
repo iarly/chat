@@ -1,4 +1,5 @@
-﻿using Chat.Server.Domain.Delegates;
+﻿using Chat.Server.Domain.Commands;
+using Chat.Server.Domain.Delegates;
 using Chat.Server.Domain.Entities;
 using Chat.Server.Domain.Exceptions;
 using Chat.Server.Domain.Factories;
@@ -23,13 +24,16 @@ namespace Chat.Server.Domain
 			ClientRepository = clientRepository;
 		}
 
-		public async Task ConnectAsync(Guid theConnectionUidOfConnectedClient)
+		public async Task ConnectAsync(Guid connectionUid)
 		{
-			Client client = ClientFactory.Create(theConnectionUidOfConnectedClient);
+			Client client = ClientFactory.Create(connectionUid);
 
 			await ClientRepository.StoreAsync(client);
 
-			DomainEvents.InvokeRequestNicknameEvent(theConnectionUidOfConnectedClient);
+			DomainEvents.SendCommand(client, new SetNicknameCommand()
+			{
+				ConnectionUid = connectionUid
+			});
 		}
 
 		public async Task UpdateNicknameAsync(Guid theConnectionUid, string theNickname)
@@ -51,7 +55,7 @@ namespace Chat.Server.Domain
 
 			ThrowsErrorWhenRoomIsNullOrEmpty(client);
 
-			SendTheMessageForEverbodyInTheRoom(client.Room, new Message(client, theMessageContent));
+			await SendTheMessageForEverbodyInTheRoom(client.Room, new Message(client, theMessageContent));
 		}
 
 		public async Task SendPublicTargetedMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
@@ -66,7 +70,7 @@ namespace Chat.Server.Domain
 
 			ThrowsErrorWhenTargetClientDoesNotExists(target);
 
-			SendTheMessageForEverbodyInTheRoom(sender.Room, new TargetedMessage(sender, target, theMessageContent));
+			await SendTheMessageForEverbodyInTheRoom(sender.Room, new TargetedMessage(sender, target, theMessageContent));
 		}
 
 		public async Task SendPrivateMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
@@ -110,25 +114,39 @@ namespace Chat.Server.Domain
 
 		private void SendDirectMessageForTargetedClient(Client destination, TargetedMessage message)
 		{
-			DomainEvents.InvokeOnUserSendMessage(destination, message);
+			DomainEvents.SendCommand(destination, new PropagateMessageCommand()
+			{
+				ConnectionUid = destination.ConnectionUid,
+				Target = destination,
+				Sender = message.Sender,
+				Content = message.Content,
+				Private = true
+			});
 		}
 
 		private async Task SendTheMessageForEverbodyInTheRoom(string room, Message message)
 		{
 			var clients = await ClientRepository.GetAllClientInTheRoomAsync(room);
+			var targetedMessage = message as TargetedMessage;
 
 			foreach (var client in clients)
 			{
-				DomainEvents.InvokeOnUserSendMessage(client, message);
+				DomainEvents.SendCommand(client, new PropagateMessageCommand()
+				{
+					ConnectionUid = client.ConnectionUid,
+					Target = targetedMessage?.Target,
+					Sender = message.Sender,
+					Content = message.Content,
+					Private = false,
+				});
 			}
 		}
 
-		private void UpdateClientRoomWhenRoomIsNotSet(Guid theConnectionUid, Client client)
+		private void UpdateClientRoomWhenRoomIsNotSet(Guid connectionUid, Client client)
 		{
 			if (string.IsNullOrEmpty(client.Room))
 			{
 				client.Room = "general";
-				DomainEvents.InvokeOnUserConnectsAtRoomEvent(theConnectionUid, client);
 			}
 		}
 

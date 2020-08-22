@@ -1,3 +1,4 @@
+using Chat.Server.Domain.Commands;
 using Chat.Server.Domain.Entities;
 using Chat.Server.Domain.Exceptions;
 using Chat.Server.Domain.Factories;
@@ -34,19 +35,26 @@ namespace Chat.Server.Domain.Tests
 		public async Task Should_Request_Nickname_When_Connect()
 		{
 			// arrage
-			Guid theConnectionUidOfConnectedClient = Guid.NewGuid();
-			Guid? theConnectionUidFromEvent = null;
+			Guid expectedConnectionUid = Guid.NewGuid();
+			Client expectedClient = new Client() { ConnectionUid = expectedConnectionUid };
 
-			DomainEvents.OnRequestNickname += (connectionUid) =>
+			Client actualClient = null;
+			SetNicknameCommand actualCommand = null;
+
+			DomainEvents.OnCommand += (connectionUid, command) =>
 			{
-				theConnectionUidFromEvent = connectionUid;
+				actualClient = connectionUid;
+				actualCommand = command as SetNicknameCommand;
 			};
 
+			ClientFactoryMock.Setup(mock => mock.Create(expectedConnectionUid)).Returns(expectedClient);
+
 			// act
-			await ChatFacade.ConnectAsync(theConnectionUidOfConnectedClient);
+			await ChatFacade.ConnectAsync(expectedConnectionUid);
 
 			// assert
-			Assert.AreEqual(theConnectionUidOfConnectedClient, theConnectionUidFromEvent);
+			Assert.AreEqual(expectedConnectionUid, actualClient.ConnectionUid);
+			Assert.IsNotNull(actualCommand);
 		}
 
 		[Test]
@@ -98,24 +106,13 @@ namespace Chat.Server.Domain.Tests
 				Nickname = null
 			};
 
-			Guid? theConnectionUidOfConnectedClient = null;
-			Client theConnectedClient = null;
-
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
-
-			DomainEvents.OnUserConnectsAtRoom += (connectionUid, client) =>
-			{
-				theConnectionUidOfConnectedClient = connectionUid;
-				theConnectedClient = client;
-			};
 
 			// act
 			await ChatFacade.UpdateNicknameAsync(theConnectionUid, theNickname);
 
 			// assert
 			Assert.AreEqual(expectedRoom, storedClient.Room);
-			Assert.AreEqual(theConnectionUid, theConnectionUidOfConnectedClient);
-			Assert.AreEqual(storedClient, theConnectedClient);
 		}
 
 		[Test]
@@ -183,7 +180,7 @@ namespace Chat.Server.Domain.Tests
 			Guid theConnectionUid = Guid.NewGuid();
 			IMessageContent theMessageContent = Mock.Of<IMessageContent>();
 
-			Client storedClient = new Client
+			Client senderClient = new Client
 			{
 				Nickname = "Will",
 				Room = expectedRoom
@@ -192,15 +189,15 @@ namespace Chat.Server.Domain.Tests
 			Client destinationClient = new Client();
 
 			ClientRepositoryMock.Setup(mock => mock.GetAllClientInTheRoomAsync(expectedRoom)).Returns(Task.FromResult(new List<Client> { destinationClient }.AsEnumerable()));
-			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
 
 			Client actualDestinationClient = null;
-			Message theSentMessage = null;
+			PropagateMessageCommand actualCommand = null;
 
-			DomainEvents.OnUserSendMessage += (destination, message) =>
+			DomainEvents.OnCommand += (destination, command) =>
 			{
 				actualDestinationClient = destination;
-				theSentMessage = message;
+				actualCommand = command as PropagateMessageCommand;
 			};
 
 			// act
@@ -208,8 +205,8 @@ namespace Chat.Server.Domain.Tests
 
 			// assert
 			Assert.AreEqual(destinationClient, actualDestinationClient);
-			Assert.AreEqual(theMessageContent, theSentMessage.Content);
-			Assert.AreEqual(storedClient, theSentMessage.Sender);
+			Assert.AreEqual(theMessageContent, actualCommand.Content);
+			Assert.AreEqual(senderClient, actualCommand.Sender);
 		}
 
 		[Test]
@@ -218,7 +215,7 @@ namespace Chat.Server.Domain.Tests
 			// arrage
 			string expectedRoom = "secret-room";
 
-			string theTargetedUser = "Carlton";
+			string theTargetedNickname = "Carlton";
 			Guid theConnectionUid = Guid.NewGuid();
 			IMessageContent theMessageContent = Mock.Of<IMessageContent>();
 
@@ -230,7 +227,7 @@ namespace Chat.Server.Domain.Tests
 
 			Client targetedClient = new Client
 			{
-				Nickname = "Carlton",
+				Nickname = theTargetedNickname,
 				Room = expectedRoom
 			};
 
@@ -238,29 +235,29 @@ namespace Chat.Server.Domain.Tests
 
 			ClientRepositoryMock.Setup(mock => mock.GetAllClientInTheRoomAsync(expectedRoom)).Returns(Task.FromResult(new List<Client> { destinationClient }.AsEnumerable()));
 
-			ClientRepositoryMock.Setup(mock => mock.FindByNicknameAsync(theTargetedUser)).Returns(Task.FromResult(targetedClient));
+			ClientRepositoryMock.Setup(mock => mock.FindByNicknameAsync(theTargetedNickname)).Returns(Task.FromResult(targetedClient));
 
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
 
 			Client actualDestinationClient = null;
-			TargetedMessage theSentMessage = null;
+			PropagateMessageCommand actualCommand = null;
 
-			DomainEvents.OnUserSendMessage += (destination, message) =>
+			DomainEvents.OnCommand += (destination, command) =>
 			{
 				actualDestinationClient = destination;
-				theSentMessage = message as TargetedMessage;
+				actualCommand = command as PropagateMessageCommand;
 			};
 
 			// act
-			await ChatFacade.SendPublicTargetedMessageAsync(theConnectionUid, theTargetedUser, theMessageContent);
+			await ChatFacade.SendPublicTargetedMessageAsync(theConnectionUid, theTargetedNickname, theMessageContent);
 
 			// assert
 			Assert.AreEqual(destinationClient, actualDestinationClient);
-			Assert.NotNull(theSentMessage);
+			Assert.NotNull(actualCommand);
 
-			Assert.AreEqual(theMessageContent, theSentMessage.Content);
-			Assert.AreEqual(senderClient, theSentMessage.Sender);
-			Assert.AreEqual(targetedClient, theSentMessage.Target);
+			Assert.AreEqual(theMessageContent, actualCommand.Content);
+			Assert.AreEqual(senderClient, actualCommand.Sender);
+			Assert.AreEqual(targetedClient, actualCommand.Target);
 		}
 
 		[Test]
@@ -316,12 +313,12 @@ namespace Chat.Server.Domain.Tests
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
 
 			Client actualDestinationClient = null;
-			TargetedMessage theSentMessage = null;
+			PropagateMessageCommand actualCommand = null;
 
-			DomainEvents.OnUserSendMessage += (destination, message) =>
+			DomainEvents.OnCommand += (destination, command) =>
 			{
 				actualDestinationClient = destination;
-				theSentMessage = message as TargetedMessage;
+				actualCommand = command as PropagateMessageCommand;
 			};
 
 			// act
@@ -329,11 +326,11 @@ namespace Chat.Server.Domain.Tests
 
 			// assert
 			Assert.AreEqual(targetedClient, actualDestinationClient);
-			Assert.NotNull(theSentMessage);
+			Assert.NotNull(actualCommand);
 
-			Assert.AreEqual(theMessageContent, theSentMessage.Content);
-			Assert.AreEqual(senderClient, theSentMessage.Sender);
-			Assert.AreEqual(targetedClient, theSentMessage.Target);
+			Assert.AreEqual(theMessageContent, actualCommand.Content);
+			Assert.AreEqual(senderClient, actualCommand.Sender);
+			Assert.AreEqual(targetedClient, actualCommand.Target);
 		}
 
 		[Test]

@@ -26,11 +26,12 @@ namespace Chat.Server.Domain.Tests.Handlers
 		{
 			var connectionUid = Guid.NewGuid();
 			var messageContent = Mock.Of<IMessageContent>();
+			var sender = new Client();
 
 			var command = new SendMessageCommand()
 			{
 				ConnectionUid = connectionUid,				
-				MessageContent = messageContent,
+				Content = messageContent,
 				Private = false
 			};
 
@@ -43,15 +44,16 @@ namespace Chat.Server.Domain.Tests.Handlers
 		public void Should_SendPublicMessage_When_Message_Is_Public_And_Targeted()
 		{
 			var targetedClient = "Jefrey";
+			var sender = new Client();
 			var connectionUid = Guid.NewGuid();
 			var messageContent = Mock.Of<IMessageContent>();
 
 			var command = new SendMessageCommand()
 			{
 				ConnectionUid = connectionUid,
-				MessageContent = messageContent,
+				Content = messageContent,
 				Private = false,
-				TargetClient = targetedClient
+				TargetClientNickname = targetedClient
 			};
 
 			SendMessageCommand.ProcessAsync(command);
@@ -69,8 +71,8 @@ namespace Chat.Server.Domain.Tests.Handlers
 			var command = new SendMessageCommand()
 			{
 				ConnectionUid = connectionUid,
-				MessageContent = messageContent,
-				TargetClient = targetedClient,
+				Content = messageContent,
+				TargetClientNickname = targetedClient,
 				Private = true
 			};
 

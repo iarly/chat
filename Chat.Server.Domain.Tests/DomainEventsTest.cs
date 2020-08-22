@@ -1,4 +1,5 @@
-﻿using Chat.Server.Domain.Entities;
+﻿using Chat.Server.Domain.Commands;
+using Chat.Server.Domain.Entities;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -17,58 +18,24 @@ namespace Chat.Server.Domain.Tests
 		}
 
 		[Test]
-		public void Should_Invoke_OnRequestNickname()
-		{
-			Guid expectedConnectionUid = Guid.NewGuid();
-			Guid invokedConnectionUid = Guid.Empty;
-
-			DomainEvents.OnRequestNickname += connectionUid => invokedConnectionUid = connectionUid;
-
-			DomainEvents.InvokeRequestNicknameEvent(expectedConnectionUid);
-
-			Assert.AreEqual(expectedConnectionUid, invokedConnectionUid);
-		}
-
-		[Test]
-		public void Should_Invoke_OnUserConnectsAtRoom()
-		{
-			Client expectedClient = new Client();
-			Guid expectedConnectionUid = Guid.NewGuid();
-
-			Client invokedClient = null;
-			Guid invokedConnectionUid = Guid.Empty;
-
-			DomainEvents.OnUserConnectsAtRoom += (connectionUid, client) =>
-			{
-				invokedConnectionUid = connectionUid;
-				invokedClient = client;
-			};
-
-			DomainEvents.InvokeOnUserConnectsAtRoomEvent(expectedConnectionUid, expectedClient);
-
-			Assert.AreEqual(expectedConnectionUid, invokedConnectionUid);
-			Assert.AreEqual(expectedClient, invokedClient);
-		}
-
-		[Test]
-		public void Should_Invoke_OnUserSentPrivateMessage()
+		public void Should_Invoke_OnCommand()
 		{
 			Client expectedTarget = new Client();
-			TargetedMessage expectedMessage = new TargetedMessage(null, null, null);
+			Command expectedCommand = new SendMessageCommand();
 
 			Client invokedTarget = null;
-			Message invokedMessage = null;
+			Command invokedCommand = null;
 
-			DomainEvents.OnUserSendMessage += (target, message) =>
+			DomainEvents.OnCommand += (target, command) =>
 			{
 				invokedTarget = target;
-				invokedMessage = message;
+				invokedCommand = command;
 			};
 
-			DomainEvents.InvokeOnUserSendMessage(expectedTarget, expectedMessage);
+			DomainEvents.SendCommand(expectedTarget, expectedCommand);
 
 			Assert.AreEqual(expectedTarget, invokedTarget);
-			Assert.AreEqual(expectedMessage, invokedMessage);
+			Assert.AreEqual(expectedCommand, invokedCommand);
 		}
 	}
 }
