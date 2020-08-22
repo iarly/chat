@@ -47,12 +47,25 @@ namespace Chat.Server.Domain
 		public async Task SendPublicMessageAsync(Guid theConnectionUid, IMessageContent theMessageContent)
 		{
 			Client client = await ClientRepository.GetByUidAsync(theConnectionUid);
-			
+
 			ThrowsErrorWhenNicknameIsNullOrEmpty(client);
 
 			ThrowsErrorWhenRoomIsNullOrEmpty(client);
 
-			SendTheMessageForEverbodyInTheRoom(client, theMessageContent);
+			SendTheMessageForEverbodyInTheRoom(client.Room, new Message(client, theMessageContent));
+		}
+
+		public async Task SendPublicTargetedMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
+		{
+			Client sender = await ClientRepository.GetByUidAsync(theConnectionUid);
+
+			ThrowsErrorWhenNicknameIsNullOrEmpty(sender);
+
+			ThrowsErrorWhenRoomIsNullOrEmpty(sender);
+
+			Client target = await ClientRepository.FindByNicknameAsync(theTargetedUser);
+
+			SendTheMessageForEverbodyInTheRoom(sender.Room, new TargetedMessage(sender, target, theMessageContent));
 		}
 
 		private static void ThrowsErrorWhenNicknameIsNullOrEmpty(Client client)
@@ -71,9 +84,9 @@ namespace Chat.Server.Domain
 			}
 		}
 
-		private void SendTheMessageForEverbodyInTheRoom(Client sender, IMessageContent theMessageContent)
+		private void SendTheMessageForEverbodyInTheRoom(string room, Message message)
 		{
-			OnUserSentMessage.Invoke(sender.Room, new Message(sender, theMessageContent));
+			OnUserSentMessage.Invoke(room, message);
 		}
 
 		private void UpdateClientRoomWhenRoomIsNotSet(Guid theConnectionUid, Client client)
@@ -101,9 +114,5 @@ namespace Chat.Server.Domain
 			}
 		}
 
-		public Task SendPublicTargetedMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent)
-		{
-			throw new NotImplementedException();
-		}
 	}
 }
