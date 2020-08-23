@@ -1,6 +1,7 @@
 ﻿using Chat.Server.Application.Enumerators;
 using Chat.Server.Application.Models;
 using Chat.Server.Domain.Commands;
+using Chat.Server.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +11,18 @@ namespace Chat.Server.Application.Mappers
 {
 	public class TextualCommandMapper
 	{
+		public string ToString(Command command)
+		{
+			if (command is PropagateMessageCommand messageCommand)
+			{
+				var textualContent = messageCommand.Content as TextMessageContent;
+
+				return $"{messageCommand.Sender.Nickname} says to everybody: {textualContent.Text}";
+			}
+
+			return null;
+		}
+
 		public Command ToCommand(Guid connectionUid, ClientState currentState, string message)
 		{
 			if (currentState == ClientState.WaitingNickname)
