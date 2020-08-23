@@ -1,5 +1,5 @@
-﻿using Chat.Server.Application.Enumerators;
-using Chat.Server.Domain.Commands;
+﻿using Chat.Server.Domain.Commands;
+using Chat.Server.Domain.Enumerators;
 using System;
 
 namespace Chat.Server.Application.Mappers

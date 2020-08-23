@@ -1,6 +1,6 @@
-﻿using Chat.Server.Application.Enumerators;
-using Chat.Server.Application.Models;
+﻿using Chat.Server.Application.Models;
 using Chat.Server.Domain.Commands;
+using Chat.Server.Domain.Enumerators;
 using System;
 using System.Text.RegularExpressions;
 

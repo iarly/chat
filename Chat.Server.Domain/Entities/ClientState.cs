@@ -1,4 +1,4 @@
-﻿namespace Chat.Server.Application.Enumerators
+﻿namespace Chat.Server.Domain.Enumerators
 {
 	public enum ClientState
 	{

@@ -10,8 +10,4 @@
     <ProjectReference Include="..\Chat.Server.MessageBroker\Chat.Server.MessageBroker.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>

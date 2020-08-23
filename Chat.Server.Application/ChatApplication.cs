@@ -1,10 +1,10 @@
 ﻿using Chat.Server.Application.Contracts;
-using Chat.Server.Application.Enumerators;
 using Chat.Server.Application.Mappers;
 using Chat.Server.Communicator;
 using Chat.Server.Domain;
 using Chat.Server.Domain.Commands;
 using Chat.Server.Domain.Entities;
+using Chat.Server.Domain.Enumerators;
 using System;
 using System.Threading.Tasks;
 
@@ -74,10 +74,7 @@ namespace Chat.Server.Application
 		{
 			var client = await ChatFacade.GetClientByUidAsync(connectionUid);
 
-			if (client.HasNickname)
-				return ClientState.WaitingNickname;
-
-			return ClientState.ReadyToConversation;
+			return client.State;
 		}
 
 		private async Task Communicator_OnClientDisconnected(Guid connectionUid)
