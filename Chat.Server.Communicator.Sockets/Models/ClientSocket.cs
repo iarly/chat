@@ -10,7 +10,7 @@ namespace Chat.Server.Communicator.Sockets.Models
 
 		public ClientSocket(Socket socket)
 		{
-			ConnectionUid = new Guid();
+			ConnectionUid = Guid.NewGuid();
 			Buffer = new byte[BufferSize];
 			StringBuilder = new StringBuilder();
 			Socket = socket;

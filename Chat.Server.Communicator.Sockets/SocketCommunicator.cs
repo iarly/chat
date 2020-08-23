@@ -96,7 +96,7 @@ namespace Chat.Server.Communicator.Sockets
 
 			string data = Serializer.Serializer(message);
 
-			byte[] byteData = Encoding.ASCII.GetBytes(data);
+			byte[] byteData = Encoding.ASCII.GetBytes(data + EOF);
 
 			handler.Send(byteData);
 
@@ -129,37 +129,44 @@ namespace Chat.Server.Communicator.Sockets
 			ClientSocket client = (ClientSocket)result.AsyncState;
 			Socket handler = client.Socket;
 
-			int bytesRead = 0;
-
-			if (!CancellationToken.IsCancellationRequested)
+			try
 			{
-				bytesRead = handler.EndReceive(result);
-			}
-
-			if (bytesRead > 0)
-			{
-				client.StringBuilder.Append(Encoding.ASCII.GetString(client.Buffer, 0, bytesRead));
-
-				string content = client.StringBuilder.ToString();
-				int indexOfEndOfFile = content.IndexOf(EOF);
-
-				while (indexOfEndOfFile > -1)
-				{
-					var currentContent = content.Substring(0, indexOfEndOfFile);
-
-					content = content.Substring(indexOfEndOfFile + EOF.Length);
-					client.StringBuilder = new StringBuilder(content);
-
-					OnClientSendCommand?.Invoke(client.ConnectionUid, Serializer.Deserialize(currentContent));
-
-					indexOfEndOfFile = content.IndexOf(EOF);
-				}
+				int bytesRead = 0;
 
 				if (!CancellationToken.IsCancellationRequested)
 				{
-					handler.BeginReceive(client.Buffer, 0, ClientSocket.BufferSize, 0,
-					new AsyncCallback(ReadCallback), client);
+					bytesRead = handler.EndReceive(result);
 				}
+
+				if (bytesRead > 0)
+				{
+					client.StringBuilder.Append(Encoding.ASCII.GetString(client.Buffer, 0, bytesRead));
+
+					string content = client.StringBuilder.ToString();
+					int indexOfEndOfFile = content.IndexOf(EOF);
+
+					while (indexOfEndOfFile > -1)
+					{
+						var currentContent = content.Substring(0, indexOfEndOfFile);
+
+						content = content.Substring(indexOfEndOfFile + EOF.Length);
+						client.StringBuilder = new StringBuilder(content);
+
+						OnClientSendCommand?.Invoke(client.ConnectionUid, Serializer.Deserialize(currentContent));
+
+						indexOfEndOfFile = content.IndexOf(EOF);
+					}
+
+					if (!CancellationToken.IsCancellationRequested)
+					{
+						handler.BeginReceive(client.Buffer, 0, ClientSocket.BufferSize, 0,
+						new AsyncCallback(ReadCallback), client);
+					}
+				}
+			}
+			catch (SocketException)
+			{
+				OnClientDisconnected?.Invoke(client.ConnectionUid);
 			}
 		}
 

@@ -24,6 +24,9 @@ namespace Chat.Server.Domain.Factories
 			if (command.GetType() == typeof(ConnectCommand))
 				return new ConnectCommandHandler(ChatService);
 
+			if (command.GetType() == typeof(DisconnectCommand))
+				return new DisconnectCommandHandler(ChatService);
+
 			throw new CommandHandlerDoesNotExistsException();
 		}
 	}

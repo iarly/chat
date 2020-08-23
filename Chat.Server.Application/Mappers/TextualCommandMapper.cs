@@ -10,6 +10,16 @@ namespace Chat.Server.Application.Mappers
 	{
 		public string ToString(Command command)
 		{
+			if (command is ExceptionCommand exceptionCommand)
+			{
+				return exceptionCommand.Message;
+			}
+
+			if (command is NoticeCommand noticeCommand)
+			{
+				return noticeCommand.Message;
+			}
+
 			if (command is SetNicknameCommand)
 			{
 				return "Welcome to our chat! Please provide a nickname.";

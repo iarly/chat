@@ -53,12 +53,12 @@ namespace Chat.Server.Application
 
 		private async Task Communicator_OnClientConnected(System.Guid connectionUid)
 		{
+			await MessageBroker.SubscribeAsync(connectionUid, MessageBroker_OnCommand);
+
 			await ChatFacade.ProcessMessageAsync(new ConnectCommand()
 			{
 				ConnectionUid = connectionUid
 			});
-
-			await MessageBroker.SubscribeAsync(connectionUid, MessageBroker_OnCommand);
 		}
 
 		private async Task Communicator_OnClientSendCommand(Guid connectionUid, string textualCommand)

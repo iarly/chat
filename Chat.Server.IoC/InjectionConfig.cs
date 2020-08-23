@@ -1,6 +1,7 @@
 ﻿using Chat.Serializers;
 using Chat.Server.Application;
 using Chat.Server.Application.Contracts;
+using Chat.Server.Application.Mappers;
 using Chat.Server.Communicator;
 using Chat.Server.Communicator.Sockets;
 using Chat.Server.Data.InMemory;
@@ -33,9 +34,9 @@ namespace Chat.Server.IoC
 			var services = new ServiceCollection();
 
 			services.AddSingleton(configuration);
-			
+
 			services.AddSingleton<ChatApplication>();
-			
+
 			services.AddSingleton<IDomainEvents, DomainEvents>();
 
 			services.AddSingleton<IChatFacade, ChatFacade>();
@@ -46,9 +47,11 @@ namespace Chat.Server.IoC
 			services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
 
 			services.AddSingleton<IMessageBroker, DummyMessageBroker>();
-			services.AddSingleton<ICommunicator<Command>, SocketCommunicator<Command>>();
+			services.AddSingleton<ICommunicator<string>, SocketCommunicator<string>>();
 
-			services.AddSingleton<ISerializer<Command>, CommandSerializer >();
+			services.AddSingleton<ISerializer<Command>, CommandSerializer>();
+			services.AddSingleton<ISerializer<string>, StringSerializer>();
+			services.AddSingleton<ITextualCommandMapper, TextualCommandMapper>();
 
 			ServiceProvider = services.BuildServiceProvider();
 		}

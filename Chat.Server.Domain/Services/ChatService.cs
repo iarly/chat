@@ -45,6 +45,8 @@ namespace Chat.Server.Domain
 			UpdateClientRoomWhenRoomIsNotSet(theConnectionUid, client);
 
 			await ClientRepository.UpdateAsync(client);
+
+			await SendNoticeToEverybodyInTheRoom(client.Room, $"{theNickname} entered at the room");
 		}
 
 		public async Task SendPublicMessageAsync(Guid theConnectionUid, IMessageContent theMessageContent)
@@ -138,6 +140,19 @@ namespace Chat.Server.Domain
 					Sender = message.Sender,
 					Content = message.Content,
 					Private = false,
+				});
+			}
+		}
+
+		private async Task SendNoticeToEverybodyInTheRoom(string room, string message)
+		{
+			var clients = await ClientRepository.GetAllClientInTheRoomAsync(room);
+			
+			foreach (var client in clients)
+			{
+				DomainEvents.SendCommand(client, new NoticeCommand(message)
+				{
+					ConnectionUid = client.ConnectionUid
 				});
 			}
 		}
