@@ -1,6 +1,8 @@
 ﻿using Chat.Server.Domain.Commands;
+using Chat.Server.Domain.Entities;
 using Chat.Server.Domain.Exceptions;
 using Chat.Server.Domain.Factories;
+using Chat.Server.Domain.Repositories;
 using System;
 using System.Threading.Tasks;
 
@@ -10,9 +12,17 @@ namespace Chat.Server.Domain
 	{
 		private ICommandHandlerFactory CommandHandlerFactory;
 
-		public ChatFacade(ICommandHandlerFactory commandHandlerFactory)
+		public IClientRepository ClientRepository { get; }
+
+		public ChatFacade(IClientRepository clientRepository, ICommandHandlerFactory commandHandlerFactory)
 		{
+			ClientRepository = clientRepository;
 			CommandHandlerFactory = commandHandlerFactory;
+		}
+
+		public async Task<Client> GetClientByUidAsync(Guid connectionUid)
+		{
+			return await ClientRepository.GetByUidAsync(connectionUid);
 		}
 
 		public async Task ProcessMessageAsync(Command command)

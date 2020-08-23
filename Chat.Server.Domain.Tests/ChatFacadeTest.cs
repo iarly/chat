@@ -1,14 +1,17 @@
 ﻿using Chat.Server.Domain.Commands;
 using Chat.Server.Domain.Exceptions;
 using Chat.Server.Domain.Factories;
+using Chat.Server.Domain.Repositories;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Threading.Tasks;
 
 namespace Chat.Server.Domain.Tests
 {
 	public class ChatFacadeTest
 	{
+		private Mock<IClientRepository> ClientRepositoryMock;
 		private Mock<ICommandHandlerFactory> CommandHandlerFactoryMock;
 
 		ChatFacade ChatFacade;
@@ -16,9 +19,21 @@ namespace Chat.Server.Domain.Tests
 		[SetUp]
 		public void Initialize()
 		{
+			ClientRepositoryMock = new Mock<IClientRepository>();
 			CommandHandlerFactoryMock = new Mock<ICommandHandlerFactory>();
 
-			ChatFacade = new ChatFacade(CommandHandlerFactoryMock.Object);
+			ChatFacade = new ChatFacade(ClientRepositoryMock.Object, 
+				CommandHandlerFactoryMock.Object);
+		}
+
+		[Test]
+		public async Task Should_GetClientByUid()
+		{
+			Guid connectionUid = Guid.NewGuid();
+
+			await ChatFacade.GetClientByUidAsync(connectionUid);
+
+			ClientRepositoryMock.Verify(mock => mock.GetByUidAsync(connectionUid), Times.Once);
 		}
 
 		[Test]
