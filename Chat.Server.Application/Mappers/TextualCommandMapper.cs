@@ -18,7 +18,12 @@ namespace Chat.Server.Application.Mappers
 				var textualContent = messageCommand.Content as TextMessageContent;
 
 				if (messageCommand.IsTargeted)
+				{
+					if (messageCommand.Private)
+						return $"{messageCommand.Sender.Nickname} says privately to {messageCommand.Target.Nickname}: {textualContent.Text}";
+
 					return $"{messageCommand.Sender.Nickname} says to {messageCommand.Target.Nickname}: {textualContent.Text}";
+				}
 
 				return $"{messageCommand.Sender.Nickname} says to everybody: {textualContent.Text}";
 			}
