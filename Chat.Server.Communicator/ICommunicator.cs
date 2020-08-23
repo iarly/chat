@@ -14,5 +14,6 @@ namespace Chat.Server.Communicator
 		Task ListenAsync(CancellationToken cancellationToken);
 
 		Task PublishAsync(Guid connectionUid, TMessage command);
+		Task DisconnectAsync(Guid connectionUid);
 	}
 }

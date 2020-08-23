@@ -49,6 +49,12 @@ namespace Chat.Server.Application
 		public void BindDomainEvents()
 		{
 			DomainEvents.OnCommand += DomainEvents_OnCommand;
+			DomainEvents.OnDisconnectCommand += DomainEvents_OnDisconnectCommand;
+		}
+
+		private async Task DomainEvents_OnDisconnectCommand(Client destination, Command command)
+		{
+			await Communicator.DisconnectAsync(destination.ConnectionUid);
 		}
 
 		private async Task Communicator_OnClientConnected(System.Guid connectionUid)

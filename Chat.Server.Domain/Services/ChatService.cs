@@ -37,6 +37,17 @@ namespace Chat.Server.Domain
 			});
 		}
 
+		public async Task DisconnectAsync(Guid connectionUid)
+		{
+			Client client = await ClientRepository.GetByUidAsync(connectionUid);
+
+			await SendNoticeMessageAsync(connectionUid, "Bye! Bye!");
+
+			DomainEvents.SendDisconnectCommand(client, new DisconnectCommand());
+
+			await SendNoticeMessageForEverybodyAsync(client.Room, $"{client.Nickname} disconected!");
+		}
+
 		public async Task UpdateNicknameAsync(Guid theConnectionUid, string theNickname)
 		{
 			ThrowsErrorIfNicknameIsInvalid(theNickname);
@@ -83,6 +94,19 @@ namespace Chat.Server.Domain
 			{
 				ConnectionUid = client.ConnectionUid
 			});
+		}
+
+		private async Task SendNoticeMessageForEverybodyAsync(string room, string notice)
+		{
+			var clients = await ClientRepository.GetAllClientInTheRoomAsync(room);
+
+			foreach (var client in clients)
+			{
+				DomainEvents.SendCommand(client, new NoticeCommand(notice)
+				{
+					ConnectionUid = client.ConnectionUid
+				});
+			}
 		}
 
 		public async Task SendPublicMessageAsync(Guid theConnectionUid, IMessageContent theMessageContent)

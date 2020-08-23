@@ -6,11 +6,12 @@ namespace Chat.Server.Domain
 {
 	public interface IChatService
 	{
-		Task ConnectAsync(Guid theConnectionUidOfConnectedClient);
-		Task SendPrivateMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent);
-		Task SendPublicMessageAsync(Guid theConnectionUid, IMessageContent theMessageContent);
-		Task SendPublicTargetedMessageAsync(Guid theConnectionUid, string theTargetedUser, IMessageContent theMessageContent);
+		Task ConnectAsync(Guid connectionUid);
+		Task SendPrivateMessageAsync(Guid connectionUid, string theTargetedUser, IMessageContent theMessageContent);
+		Task SendPublicMessageAsync(Guid connectionUid, IMessageContent theMessageContent);
+		Task SendPublicTargetedMessageAsync(Guid connectionUid, string theTargetedUser, IMessageContent theMessageContent);
 		Task SendNoticeMessageAsync(Guid connectionUid, string message);
-		Task UpdateNicknameAsync(Guid theConnectionUid, string theNickname);
+		Task UpdateNicknameAsync(Guid connectionUid, string theNickname);
+		Task DisconnectAsync(Guid connectionUid);
 	}
 }

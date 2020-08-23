@@ -47,6 +47,11 @@ namespace Chat.Server.Application.Mappers
 
 			if (currentState == ClientState.ReadyToConversation)
 			{
+				if (message.StartsWith("/exit"))
+				{
+					return new ExitCommand(connectionUid);
+				}
+
 				if (message.StartsWith("/t"))
 				{
 					return ConvertToTargetedMessage(connectionUid, ref message);

@@ -13,7 +13,7 @@ namespace Chat.Server.Domain.Commands.Handlers
 
 		protected override Task InternalProcessAsync(ConnectCommand command)
 		{
-			return Task.CompletedTask;
+			return ChatService.DisconnectAsync(command.ConnectionUid);
 		}
 	}
 }

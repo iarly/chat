@@ -32,6 +32,33 @@ namespace Chat.Server.Domain.Tests
 		}
 
 		[Test]
+		public async Task Should_Invoke_Disconnect_Domain_Event_On_Disconnect_User()
+		{
+			// arrange
+			Guid expectedConnectionUid = Guid.NewGuid();
+			Client expectedClient = new Client() { ConnectionUid = expectedConnectionUid };
+			
+			Client actualClient = null;
+			DisconnectCommand actualCommand = null;
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(expectedConnectionUid)).Returns(Task.FromResult(expectedClient));
+
+			DomainEvents.OnDisconnectCommand += (client, command) =>
+			{
+				actualClient = client;
+				actualCommand = command as DisconnectCommand;
+				return Task.CompletedTask;
+			};
+
+			// act
+			await ChatFacade.DisconnectAsync(expectedConnectionUid);
+
+			// assert
+			Assert.IsNotNull(actualCommand);
+			Assert.AreEqual(expectedClient, actualClient);
+		}
+
+		[Test]
 		public void Should_Throw_Error_When_Nickname_Is_Invalid()
 		{
 			// arrage

@@ -94,11 +94,14 @@ namespace Chat.Server.Communicator.Sockets
 		{
 			Socket handler = Clients[connectionUid].Socket;
 
-			string data = Serializer.Serializer(message);
+			if (handler.Connected)
+			{
+				string data = Serializer.Serializer(message);
 
-			byte[] byteData = Encoding.ASCII.GetBytes(data + EOF);
+				byte[] byteData = Encoding.ASCII.GetBytes(data + EOF);
 
-			handler.Send(byteData);
+				handler.Send(byteData);
+			}
 
 			return Task.CompletedTask;
 		}
@@ -164,11 +167,20 @@ namespace Chat.Server.Communicator.Sockets
 					}
 				}
 			}
-			catch (SocketException)
+			catch (Exception)
 			{
 				OnClientDisconnected?.Invoke(client.ConnectionUid);
 			}
 		}
 
+		public Task DisconnectAsync(Guid connectionUid)
+		{
+			if (Clients.ContainsKey(connectionUid))
+			{
+				Clients[connectionUid].Socket.Close();
+			}
+
+			return Task.CompletedTask;
+		}
 	}
 }
