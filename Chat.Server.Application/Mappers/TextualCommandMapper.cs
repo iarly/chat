@@ -24,6 +24,11 @@ namespace Chat.Server.Application.Mappers
 					return ConvertToTargetedMessage(connectionUid, ref message);
 				}
 
+				if (message.StartsWith("/p"))
+				{
+					return ConvertToPrivateMessage(connectionUid, ref message);
+				}
+
 				return ConvertToPublicMessage(connectionUid, message);
 			}
 
@@ -62,6 +67,22 @@ namespace Chat.Server.Application.Mappers
 				Content = new TextMessageContent(message),
 				TargetClientNickname = targetedNickname,
 				Private = false,
+			};
+		}
+
+		private static Command ConvertToPrivateMessage(Guid connectionUid, ref string message)
+		{
+			Regex targetedMessageRegex = new Regex("/p ([A-z]*) (.*)");
+			var match = targetedMessageRegex.Match(message);
+			string targetedNickname = match.Groups[1].Value;
+			message = match.Groups[2].Value;
+
+			return new SendMessageCommand
+			{
+				ConnectionUid = connectionUid,
+				Content = new TextMessageContent(message),
+				TargetClientNickname = targetedNickname,
+				Private = true,
 			};
 		}
 	}
