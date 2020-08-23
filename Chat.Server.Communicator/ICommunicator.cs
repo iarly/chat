@@ -1,7 +1,6 @@
 ﻿using Chat.Server.Communicator.Delegates;
 using Chat.Server.Domain.Commands;
-using Chat.Server.Domain.Entities;
-using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chat.Server.Communicator
@@ -12,7 +11,7 @@ namespace Chat.Server.Communicator
 		event ClientDisconnectedDelegate OnClientDisconnected;
 		event ClientSendCommandDelegate OnClientSendCommand;
 
-		Task ListenAsync();
+		Task ListenAsync(CancellationToken cancellationToken);
 
 		Task PublishAsync(Command command);
 	}

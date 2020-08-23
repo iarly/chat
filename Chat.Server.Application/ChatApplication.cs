@@ -38,7 +38,7 @@ namespace Chat.Server.Application
 
 		public Task StartAsync()
 		{
-			return Communicator.ListenAsync();
+			return Communicator.ListenAsync(new System.Threading.CancellationToken());
 		}
 
 		public void BindDomainEvents()

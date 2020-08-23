@@ -47,13 +47,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.2.0 - Data", "1.2.0 - Dat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Server.Data.InMemory", "Chat.Server.Data.InMemory\Chat.Server.Data.InMemory.csproj", "{C33ED778-DE6B-48C4-A42C-AED5A03BF323}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Server.Communicator.Sockets", "Chat.Server.Communicator.Sockets\Chat.Server.Communicator.Sockets.csproj", "{8F206EEA-67B7-4513-8B5D-ED8A9B5DBB61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Server.Communicator.Sockets", "Chat.Server.Communicator.Sockets\Chat.Server.Communicator.Sockets.csproj", "{8F206EEA-67B7-4513-8B5D-ED8A9B5DBB61}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Common", "3 - Common", "{ED4BCFDA-A69E-42E0-BD8F-14403AF61F55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Serializers", "Chat.Serializers\Chat.Serializers.csproj", "{357BD854-56BC-4E23-AD10-A6C989D8C71C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Serializers", "Chat.Serializers\Chat.Serializers.csproj", "{357BD854-56BC-4E23-AD10-A6C989D8C71C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Serializers.Tests", "Chat.Serializers.Tests\Chat.Serializers.Tests.csproj", "{FECF6089-076A-4A1C-90E7-EB5D3EA8034F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Serializers.Tests", "Chat.Serializers.Tests\Chat.Serializers.Tests.csproj", "{FECF6089-076A-4A1C-90E7-EB5D3EA8034F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Server.Communicator.Sockets.Tests", "Chat.Server.Communicator.Sockets.Tests\Chat.Server.Communicator.Sockets.Tests.csproj", "{FCD96392-292E-401C-AA05-E54E63DA1516}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +119,10 @@ Global
 		{FECF6089-076A-4A1C-90E7-EB5D3EA8034F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FECF6089-076A-4A1C-90E7-EB5D3EA8034F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FECF6089-076A-4A1C-90E7-EB5D3EA8034F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCD96392-292E-401C-AA05-E54E63DA1516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCD96392-292E-401C-AA05-E54E63DA1516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCD96392-292E-401C-AA05-E54E63DA1516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCD96392-292E-401C-AA05-E54E63DA1516}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,6 +150,7 @@ Global
 		{8F206EEA-67B7-4513-8B5D-ED8A9B5DBB61} = {722D05DA-F2D1-466B-B323-02E3764B6710}
 		{357BD854-56BC-4E23-AD10-A6C989D8C71C} = {ED4BCFDA-A69E-42E0-BD8F-14403AF61F55}
 		{FECF6089-076A-4A1C-90E7-EB5D3EA8034F} = {ED4BCFDA-A69E-42E0-BD8F-14403AF61F55}
+		{FCD96392-292E-401C-AA05-E54E63DA1516} = {722D05DA-F2D1-466B-B323-02E3764B6710}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EE556D60-9942-4ADB-A229-11FB878F89EE}

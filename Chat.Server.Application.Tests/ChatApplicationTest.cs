@@ -7,6 +7,7 @@ using Chat.Server.MessageBroker.Delegates;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chat.Server.Application.Tests
@@ -39,7 +40,7 @@ namespace Chat.Server.Application.Tests
 		{
 			await ChatApplication.StartAsync();
 
-			CommunicatorMock.Verify(mock => mock.ListenAsync());
+			CommunicatorMock.Verify(mock => mock.ListenAsync(It.IsAny<CancellationToken>()));
 		}
 
 		[Test]
