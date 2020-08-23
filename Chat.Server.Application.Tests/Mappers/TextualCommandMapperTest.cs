@@ -45,6 +45,26 @@ namespace Chat.Server.Application.Tests.Mappers
 			Assert.IsAssignableFrom<SendMessageCommand>(command);
 			Assert.AreEqual(messageSentByClient, ((TextMessageContent)((SendMessageCommand)command).Content).Text);
 			Assert.AreEqual(connectionUid, ((SendMessageCommand)command).ConnectionUid);
+			Assert.AreEqual(false, ((SendMessageCommand)command).Private);
+			Assert.AreEqual(null, ((SendMessageCommand)command).TargetClientNickname);
+		}
+
+		[Test]
+		public void Should_Convert_TargetedMessage_To_SendMessageCommand_When_ReadyToConversation()
+		{
+			string messageSentByClient = "/t Joey Hi Joey";
+			string targetClientNickname = "Joey";
+			string expectedMessage = "Hi Joey";
+			ClientState currentStateOfClient = ClientState.ReadyToConversation;
+			Guid connectionUid = Guid.NewGuid();
+
+			Command command = Mapper.ToCommand(connectionUid, currentStateOfClient, messageSentByClient);
+
+			Assert.IsAssignableFrom<SendMessageCommand>(command);
+			Assert.AreEqual(expectedMessage, ((TextMessageContent)((SendMessageCommand)command).Content).Text);
+			Assert.AreEqual(connectionUid, ((SendMessageCommand)command).ConnectionUid);
+			Assert.AreEqual(false, ((SendMessageCommand)command).Private);
+			Assert.AreEqual(targetClientNickname, ((SendMessageCommand)command).TargetClientNickname);
 		}
 
 	}
