@@ -57,6 +57,10 @@ namespace Chat.Server.Application.Tests.Mappers
 				Sender = new Domain.Entities.Client
 				{
 					Nickname = expectedSenderNickname
+				},
+				Target = new Domain.Entities.Client
+				{
+					Nickname = expectedTargetNickname
 				}
 			};
 
