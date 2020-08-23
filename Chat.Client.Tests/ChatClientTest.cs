@@ -39,5 +39,28 @@ namespace Chat.Client.Tests
 
 			Assert.IsTrue(connected);
 		}
+
+
+		[Test]
+		public void Should_Send_Text_To_The_Server()
+		{
+			ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+			string expectedMessage = "Hi Server!";
+
+			Server.OnClientConnected += () =>
+			{
+				manualResetEvent.Set();
+			};
+
+			ChatClient.ConnectTo("localhost", 22000);
+
+			manualResetEvent.WaitOne(4000);
+
+			ChatClient.SendMessage(expectedMessage);
+
+			string actualMessage = Server.Receive();
+
+			Assert.AreEqual(expectedMessage + ChatClient.EOF, actualMessage);
+		}
 	}
 }

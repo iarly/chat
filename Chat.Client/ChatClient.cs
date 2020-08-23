@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace Chat.Client
 {
 	public class ChatClient
 	{
+		public const string EOF = "\n\r";
 		private IConfiguration Configuration;
 		private Socket Socket;
 
@@ -27,6 +28,12 @@ namespace Chat.Client
 				SocketType.Stream, ProtocolType.Tcp);
 
 			Client.Connect(remoteEP);
+		}
+
+		public void SendMessage(string expectedMessage)
+		{
+			byte[] byteData = Encoding.ASCII.GetBytes(expectedMessage + EOF);
+			Client.Send(byteData, 0, byteData.Length, SocketFlags.None);
 		}
 	}
 }
