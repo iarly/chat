@@ -4,5 +4,5 @@ using System.Threading.Tasks;
 
 namespace Chat.Server.Communicator.Delegates
 {
-	public delegate Task ClientSendCommandDelegate(Guid connectionUid, Command command);
+	public delegate Task ClientSendMessageDelegate<TMessage>(Guid connectionUid, TMessage command);
 }

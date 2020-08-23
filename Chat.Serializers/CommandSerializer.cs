@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Chat.Serializers
 {
-	public class CommandSerializer : ICommandSerializer
+	public class CommandSerializer : ISerializer<Command>
 	{
 		public JsonSerializerSettings JsonSerializerSettings { get; }
 

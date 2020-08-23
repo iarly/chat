@@ -19,14 +19,14 @@ namespace Chat.Server.Communicator.Sockets.Tests
 
 		private Mock<IConfiguration> ConfigurationMock;
 		private CommandSerializer CommandSerializer;
-		private SocketCommunicator SocketCommunicator;
+		private SocketCommunicator<Command> SocketCommunicator;
 
 		[SetUp]
 		public void Setup()
 		{
 			ConfigurationMock = new Mock<IConfiguration>();
 			CommandSerializer = new CommandSerializer();
-			SocketCommunicator = new SocketCommunicator(ConfigurationMock.Object, CommandSerializer);
+			SocketCommunicator = new SocketCommunicator<Command>(ConfigurationMock.Object, CommandSerializer);
 		}
 
 		[Test]
@@ -44,9 +44,11 @@ namespace Chat.Server.Communicator.Sockets.Tests
 
 			TextualContent expectedContent = expectedCommand.Content as TextualContent;
 			TextualContent actualContent = null;
+			Guid actualConnectionUid = default;
 
 			SocketCommunicator.OnClientConnected += (connectionUid) =>
 			{
+				actualConnectionUid = connectionUid;
 				connectionWaiter.Set();
 				return Task.CompletedTask;
 			};
@@ -58,7 +60,7 @@ namespace Chat.Server.Communicator.Sockets.Tests
 
 				connectionWaiter.WaitOne(ReceiveMessageTimeout);
 
-				SocketCommunicator.PublishAsync(expectedCommand);
+				SocketCommunicator.PublishAsync(actualConnectionUid, expectedCommand);
 
 				var receivedText = client.Receive();
 

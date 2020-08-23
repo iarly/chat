@@ -12,12 +12,12 @@ namespace Chat.Server.Application
 	{
 		public IChatFacade ChatFacade { get; }
 		public IMessageBroker MessageBroker { get; }
-		public ICommunicator Communicator { get; }
+		public ICommunicator<Command> Communicator { get; }
 		public IDomainEvents DomainEvents { get; }
 
 		public ChatApplication(IChatFacade chatFacade,
 			IMessageBroker messageBroker,
-			ICommunicator communicator,
+			ICommunicator<Command> communicator,
 			IDomainEvents domainEvents)
 		{
 			ChatFacade = chatFacade;
@@ -73,7 +73,7 @@ namespace Chat.Server.Application
 
 		private async Task MessageBroker_OnCommand(Command command)
 		{
-			await Communicator.PublishAsync(command);
+			await Communicator.PublishAsync(command.ConnectionUid, command);
 		}
 
 		private async Task DomainEvents_OnCommand(Client target, Command command)

@@ -5,6 +5,7 @@ using Chat.Server.Communicator;
 using Chat.Server.Communicator.Sockets;
 using Chat.Server.Data.InMemory;
 using Chat.Server.Domain;
+using Chat.Server.Domain.Commands;
 using Chat.Server.Domain.Entities;
 using Chat.Server.Domain.Factories;
 using Chat.Server.Domain.Repositories;
@@ -45,9 +46,9 @@ namespace Chat.Server.IoC
 			services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
 
 			services.AddSingleton<IMessageBroker, DummyMessageBroker>();
-			services.AddSingleton<ICommunicator, SocketCommunicator>();
+			services.AddSingleton<ICommunicator<Command>, SocketCommunicator<Command>>();
 
-			services.AddSingleton<ICommandSerializer, CommandSerializer>();
+			services.AddSingleton<ISerializer<Command>, CommandSerializer >();
 
 			ServiceProvider = services.BuildServiceProvider();
 		}

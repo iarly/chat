@@ -1,12 +1,10 @@
 ﻿using Chat.Server.Communicator.Delegates;
 using Chat.Server.Communicator.Sockets.Delegates;
 using Chat.Server.Communicator.Sockets.Models;
-using Chat.Server.Domain.Commands;
 using Chat.Server.Domain.Services;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -16,11 +14,11 @@ using System.Threading.Tasks;
 
 namespace Chat.Server.Communicator.Sockets
 {
-	public class SocketCommunicator : ICommunicator
+	public class SocketCommunicator<TMessage> : ICommunicator<TMessage>
 	{
-		public const string EOF = "<\"EOF\">";
+		public const string EOF = "\n\r";
 		protected IConfiguration Configuration { get; }
-		protected ICommandSerializer CommandSerializer { get; }
+		protected ISerializer<TMessage> Serializer { get; }
 
 		internal IDictionary<Guid, ClientSocket> Clients = new Dictionary<Guid, ClientSocket>();
 
@@ -32,14 +30,14 @@ namespace Chat.Server.Communicator.Sockets
 		public event ServerReadyForConnectionsDelegate OnServerReady;
 		public event ClientConnectedDelegate OnClientConnected;
 		public event ClientDisconnectedDelegate OnClientDisconnected;
-		public event ClientSendCommandDelegate OnClientSendCommand;
+		public event ClientSendMessageDelegate<TMessage> OnClientSendCommand;
 
 		protected EventWaitHandle ConnectionIsDone = new ManualResetEvent(false);
 
-		public SocketCommunicator(IConfiguration configuration, ICommandSerializer commandSerializer)
+		public SocketCommunicator(IConfiguration configuration, ISerializer<TMessage> commandSerializer)
 		{
 			Configuration = configuration;
-			CommandSerializer = commandSerializer;
+			Serializer = commandSerializer;
 			Host = Configuration["host"] ?? "localhost";
 			Port = int.Parse(Configuration["port"] ?? "33000");
 			MaxRequestsAtTime = int.Parse(Configuration["max-clients"] ?? "100");
@@ -92,11 +90,11 @@ namespace Chat.Server.Communicator.Sockets
 			OnServerReady?.Invoke();
 		}
 
-		public Task PublishAsync(Command command)
+		public Task PublishAsync(Guid connectionUid, TMessage message)
 		{
-			Socket handler = Clients[command.ConnectionUid].Socket;
+			Socket handler = Clients[connectionUid].Socket;
 
-			string data = CommandSerializer.Serializer(command);
+			string data = Serializer.Serializer(message);
 
 			byte[] byteData = Encoding.ASCII.GetBytes(data);
 
@@ -152,7 +150,7 @@ namespace Chat.Server.Communicator.Sockets
 					content = content.Substring(indexOfEndOfFile + EOF.Length);
 					client.StringBuilder = new StringBuilder(content);
 
-					OnClientSendCommand?.Invoke(client.ConnectionUid, CommandSerializer.Deserialize(currentContent));
+					OnClientSendCommand?.Invoke(client.ConnectionUid, Serializer.Deserialize(currentContent));
 
 					indexOfEndOfFile = content.IndexOf(EOF);
 				}

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Chat.Server.Domain.Commands;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -6,7 +7,7 @@ namespace Chat.Server.Communicator.Sockets.Tests.Stubs
 {
 	public class ClientConnection
 	{
-		private const string EOF = SocketCommunicator.EOF;
+		private const string EOF = SocketCommunicator<Command>.EOF;
 		private Socket Client;
 
 		public ClientConnection(string host, int port)

@@ -18,7 +18,7 @@ namespace Chat.Server.Application.Tests
 
 		Mock<IChatFacade> ChatFacadeMock;
 		Mock<IMessageBroker> MessageBrokerMock;
-		Mock<ICommunicator> CommunicatorMock;
+		Mock<ICommunicator<Command>> CommunicatorMock;
 		Mock<IDomainEvents> DomainEventsMock;
 
 		[SetUp]
@@ -26,7 +26,7 @@ namespace Chat.Server.Application.Tests
 		{
 			ChatFacadeMock = new Mock<IChatFacade>();
 			MessageBrokerMock = new Mock<IMessageBroker>();
-			CommunicatorMock = new Mock<ICommunicator>();
+			CommunicatorMock = new Mock<ICommunicator<Command>>();
 			DomainEventsMock = new Mock<IDomainEvents>();
 
 			ChatApplication = new ChatApplication(ChatFacadeMock.Object,
