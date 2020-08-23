@@ -13,6 +13,7 @@ namespace Chat.Server.Domain.Tests
 	{
 		private Mock<IClientRepository> ClientRepositoryMock;
 		private Mock<ICommandHandlerFactory> CommandHandlerFactoryMock;
+		private Mock<IChatService> ChatServiceMock;
 
 		ChatFacade ChatFacade;
 
@@ -21,9 +22,11 @@ namespace Chat.Server.Domain.Tests
 		{
 			ClientRepositoryMock = new Mock<IClientRepository>();
 			CommandHandlerFactoryMock = new Mock<ICommandHandlerFactory>();
+			ChatServiceMock = new Mock<IChatService>();
 
 			ChatFacade = new ChatFacade(ClientRepositoryMock.Object, 
-				CommandHandlerFactoryMock.Object);
+				CommandHandlerFactoryMock.Object,
+				ChatServiceMock.Object);
 		}
 
 		[Test]

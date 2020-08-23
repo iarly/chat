@@ -75,6 +75,16 @@ namespace Chat.Server.Domain
 			}
 		}
 
+		public async Task SendNoticeMessageAsync(Guid connectionUid, string notice)
+		{
+			Client client = await ClientRepository.GetByUidAsync(connectionUid);
+
+			DomainEvents.SendCommand(client, new NoticeCommand(notice)
+			{
+				ConnectionUid = client.ConnectionUid
+			});
+		}
+
 		public async Task SendPublicMessageAsync(Guid theConnectionUid, IMessageContent theMessageContent)
 		{
 			Client client = await ClientRepository.GetByUidAsync(theConnectionUid);

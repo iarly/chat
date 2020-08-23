@@ -12,12 +12,15 @@ namespace Chat.Server.Domain
 	{
 		private ICommandHandlerFactory CommandHandlerFactory;
 		private IClientRepository ClientRepository { get; }
+		public IChatService ChatService { get; }
 
 		public ChatFacade(IClientRepository clientRepository,
-			ICommandHandlerFactory commandHandlerFactory)
+			ICommandHandlerFactory commandHandlerFactory,
+			IChatService chatService)
 		{
 			ClientRepository = clientRepository;
 			CommandHandlerFactory = commandHandlerFactory;
+			ChatService = chatService;
 		}
 
 		public async Task<Client> GetClientByUidAsync(Guid connectionUid)
@@ -37,15 +40,8 @@ namespace Chat.Server.Domain
 			}
 			catch (Exception exception)
 			{
-				await HandleException(exception);
+				await ChatService.SendNoticeMessageAsync(command.ConnectionUid, exception.Message);
 			}
-		}
-
-		private async Task HandleException(Exception exception)
-		{
-			var exceptionCommand = new ExceptionCommand(exception);
-			var exceptionHandler = CommandHandlerFactory.GetHandler(exceptionCommand);
-			await exceptionHandler.ProcessAsync(exceptionCommand);
 		}
 
 		private static void ThrowsExceptionWhenHandlerIsNull(ICommandHandler handler)
