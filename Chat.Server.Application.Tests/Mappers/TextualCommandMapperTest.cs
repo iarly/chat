@@ -41,6 +41,30 @@ namespace Chat.Server.Application.Tests.Mappers
 			Assert.AreEqual(expectedText, actualText);
 		}
 
+
+		[Test]
+		public void Should_Convert_PropagateMessageCommand_To_TargetedMessageText()
+		{
+			string expectedMessage = "Hey, how are you doin?";
+			string expectedSenderNickname = "Joey";
+			string expectedTargetNickname = "Jospeh";
+			string expectedText = $"{expectedSenderNickname} says to {expectedTargetNickname}: {expectedMessage}";
+
+			PropagateMessageCommand messageCommand = new PropagateMessageCommand
+			{
+				Content = new TextMessageContent(expectedMessage),
+				Private = false,
+				Sender = new Domain.Entities.Client
+				{
+					Nickname = expectedSenderNickname
+				}
+			};
+
+			string actualText = Mapper.ToString(messageCommand);
+
+			Assert.AreEqual(expectedText, actualText);
+		}
+
 		[Test]
 		public void Should_Convert_Message_To_SetNicknameCommand_When_WaitingNickaname()
 		{
