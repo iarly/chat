@@ -1,4 +1,5 @@
 ﻿using Chat.Server.Application.Enumerators;
+using Chat.Server.Application.Models;
 using Chat.Server.Domain.Commands;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,16 @@ namespace Chat.Server.Application.Mappers
 				{
 					ConnectionUid = connectionUid,
 					Nickname = message
+				};
+			}
+
+			if (currentState == ClientState.ReadyToConversation)
+			{
+				return new SendMessageCommand
+				{
+					ConnectionUid = connectionUid,
+					Content = new TextMessageContent(message),
+					Private = false,
 				};
 			}
 
