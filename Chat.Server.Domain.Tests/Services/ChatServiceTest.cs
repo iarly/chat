@@ -32,6 +32,50 @@ namespace Chat.Server.Domain.Tests
 		}
 
 		[Test]
+		public void Should_Throw_Error_When_Nickname_Is_Invalid()
+		{
+			// arrage
+			Guid theConnectionUid = Guid.NewGuid();
+			string theNickname = "Will Smith";
+			Client storedClient = new Client
+			{
+				ConnectionUid = theConnectionUid,
+				Nickname = "Agent J"
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+
+			// act && assert
+			Assert.ThrowsAsync<InvalidNicknameException>(async () => await ChatFacade.UpdateNicknameAsync(theConnectionUid, theNickname));
+		}
+
+		[Test]
+		public void Should_Throw_Error_When_Nickname_Already_Exists()
+		{
+			// arrage
+			Guid theConnectionUid = Guid.NewGuid();
+			string theNickname = "Will-Smith";
+			Client storedClient = new Client
+			{
+				ConnectionUid = theConnectionUid,
+				Nickname = "Agent J"
+			};
+
+			Client existentClient = new Client()
+			{
+				ConnectionUid = Guid.NewGuid(),
+				Nickname = "Will Smith"
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.FindByNicknameAsync(theNickname)).Returns(Task.FromResult(existentClient));
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(storedClient));
+
+			// act && assert
+			Assert.ThrowsAsync<NicknameAlreadyExistsException>(async () => await ChatFacade.UpdateNicknameAsync(theConnectionUid, theNickname));
+		}
+
+		[Test]
 		public async Task Should_Request_Nickname_When_Connect()
 		{
 			// arrage
@@ -79,7 +123,7 @@ namespace Chat.Server.Domain.Tests
 		{
 			// arrage
 			Guid theConnectionUid = Guid.NewGuid();
-			string theNickname = "Will Smith";
+			string theNickname = "Will-Smith";
 			Client storedClient = new Client
 			{
 				Nickname = "Agent J"

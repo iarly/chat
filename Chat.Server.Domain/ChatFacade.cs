@@ -11,17 +11,13 @@ namespace Chat.Server.Domain
 	public class ChatFacade : IChatFacade
 	{
 		private ICommandHandlerFactory CommandHandlerFactory;
-
-		public IClientRepository ClientRepository { get; }
-		public IDomainEvents DomainEvents { get; }
+		private IClientRepository ClientRepository { get; }
 
 		public ChatFacade(IClientRepository clientRepository,
-			ICommandHandlerFactory commandHandlerFactory,
-			IDomainEvents domainEvents)
+			ICommandHandlerFactory commandHandlerFactory)
 		{
 			ClientRepository = clientRepository;
 			CommandHandlerFactory = commandHandlerFactory;
-			DomainEvents = domainEvents;
 		}
 
 		public async Task<Client> GetClientByUidAsync(Guid connectionUid)

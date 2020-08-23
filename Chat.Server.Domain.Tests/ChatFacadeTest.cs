@@ -50,13 +50,5 @@ namespace Chat.Server.Domain.Tests
 
 			commandHandler.Verify(mock => mock.ProcessAsync(command), Times.Once);
 		}
-
-		[Test]
-		public void Should_Throw_NotFoundCommandHandlerException_When_CommandHandler_Does_Not_Exists()
-		{
-			Command command = Mock.Of<Command>();
-			
-			Assert.ThrowsAsync<CommandDoesNotExistsException>(async () => await ChatFacade.ProcessMessageAsync(command));
-		}
 	}
 }

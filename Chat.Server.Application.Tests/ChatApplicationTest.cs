@@ -4,6 +4,7 @@ using Chat.Server.Communicator;
 using Chat.Server.Domain;
 using Chat.Server.Domain.Commands;
 using Chat.Server.Domain.Entities;
+using Chat.Server.Domain.Enumerators;
 using Chat.Server.MessageBroker.Delegates;
 using Moq;
 using NUnit.Framework;
@@ -62,13 +63,17 @@ namespace Chat.Server.Application.Tests
 		public void Should_Process_The_Command_When_Client_Sends_Command()
 		{
 			Guid expectedConnectionUid = Guid.NewGuid();
+			string expectedTextualCommand = "/t Jude Hey!";
 			Command expectedCommand = new SendMessageCommand();
+			Client client = new Client() { Nickname = "IAmReadyToConversation" };
 
-			CommunicatorMock.Raise(mock => mock.OnClientSendCommand += null, expectedConnectionUid, expectedCommand);
+			ChatFacadeMock.Setup(mock => mock.GetClientByUidAsync(expectedConnectionUid)).Returns(Task.FromResult(client));
+
+			TextuaCommandMapperMock.Setup(mock => mock.ToCommand(expectedConnectionUid, ClientState.ReadyToConversation, expectedTextualCommand)).Returns(expectedCommand);
+
+			CommunicatorMock.Raise(mock => mock.OnClientSendCommand += null, expectedConnectionUid, expectedTextualCommand);
 
 			ChatFacadeMock.Verify(mock => mock.ProcessMessageAsync(expectedCommand));
-
-			Assert.AreEqual(expectedConnectionUid, expectedCommand.ConnectionUid);
 		}
 
 		[Test]

@@ -1,11 +1,9 @@
-﻿using Chat.Server.Application.Enumerators;
-using Chat.Server.Application.Mappers;
+﻿using Chat.Server.Application.Mappers;
 using Chat.Server.Application.Models;
 using Chat.Server.Domain.Commands;
+using Chat.Server.Domain.Enumerators;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Chat.Server.Application.Tests.Mappers
 {

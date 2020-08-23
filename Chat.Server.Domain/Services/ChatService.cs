@@ -5,6 +5,7 @@ using Chat.Server.Domain.Exceptions;
 using Chat.Server.Domain.Factories;
 using Chat.Server.Domain.Repositories;
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Chat.Server.Domain
@@ -38,6 +39,12 @@ namespace Chat.Server.Domain
 
 		public async Task UpdateNicknameAsync(Guid theConnectionUid, string theNickname)
 		{
+			ThrowsErrorIfNicknameIsInvalid(theNickname);
+
+			Client existentClientWithSameNickname = await ClientRepository.FindByNicknameAsync(theNickname);
+
+			ThrowsErrorWhenNicknameAlreadyExists(theConnectionUid, existentClientWithSameNickname);
+
 			Client client = await ClientRepository.GetByUidAsync(theConnectionUid);
 
 			client.Nickname = theNickname;
@@ -47,6 +54,25 @@ namespace Chat.Server.Domain
 			await ClientRepository.UpdateAsync(client);
 
 			await SendNoticeToEverybodyInTheRoom(client.Room, $"{theNickname} entered at the room");
+		}
+
+		private static void ThrowsErrorIfNicknameIsInvalid(string theNickname)
+		{
+			if (!Regex.Match(theNickname, "^[A-z0-9\\-]*$").Success)
+			{
+				throw new InvalidNicknameException();
+			}
+		}
+
+		private static void ThrowsErrorWhenNicknameAlreadyExists(Guid connectionUid, Client existentClientWithSameNickname)
+		{
+			if (existentClientWithSameNickname != null)
+			{
+				if (existentClientWithSameNickname.ConnectionUid != connectionUid)
+				{
+					throw new NicknameAlreadyExistsException();
+				}
+			}
 		}
 
 		public async Task SendPublicMessageAsync(Guid theConnectionUid, IMessageContent theMessageContent)
@@ -147,7 +173,7 @@ namespace Chat.Server.Domain
 		private async Task SendNoticeToEverybodyInTheRoom(string room, string message)
 		{
 			var clients = await ClientRepository.GetAllClientInTheRoomAsync(room);
-			
+
 			foreach (var client in clients)
 			{
 				DomainEvents.SendCommand(client, new NoticeCommand(message)
