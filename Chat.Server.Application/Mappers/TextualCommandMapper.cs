@@ -1,15 +1,12 @@
 ﻿using Chat.Server.Application.Enumerators;
 using Chat.Server.Application.Models;
 using Chat.Server.Domain.Commands;
-using Chat.Server.Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Chat.Server.Application.Mappers
 {
-	public class TextualCommandMapper
+	public class TextualCommandMapper : ITextualCommandMapper
 	{
 		public string ToString(Command command)
 		{

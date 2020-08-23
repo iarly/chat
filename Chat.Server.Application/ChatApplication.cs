@@ -1,4 +1,6 @@
 ﻿using Chat.Server.Application.Contracts;
+using Chat.Server.Application.Enumerators;
+using Chat.Server.Application.Mappers;
 using Chat.Server.Communicator;
 using Chat.Server.Domain;
 using Chat.Server.Domain.Commands;
@@ -11,16 +13,19 @@ namespace Chat.Server.Application
 	public class ChatApplication
 	{
 		public IChatFacade ChatFacade { get; }
+		public ITextualCommandMapper TextualCommandMapper { get; }
 		public IMessageBroker MessageBroker { get; }
-		public ICommunicator<Command> Communicator { get; }
+		public ICommunicator<string> Communicator { get; }
 		public IDomainEvents DomainEvents { get; }
 
 		public ChatApplication(IChatFacade chatFacade,
+			ITextualCommandMapper textualCommandMapper,
 			IMessageBroker messageBroker,
-			ICommunicator<Command> communicator,
+			ICommunicator<string> communicator,
 			IDomainEvents domainEvents)
 		{
 			ChatFacade = chatFacade;
+			TextualCommandMapper = textualCommandMapper;
 			MessageBroker = messageBroker;
 			Communicator = communicator;
 			DomainEvents = domainEvents;
@@ -56,11 +61,23 @@ namespace Chat.Server.Application
 			await MessageBroker.SubscribeAsync(connectionUid, MessageBroker_OnCommand);
 		}
 
-		private async Task Communicator_OnClientSendCommand(Guid connectionUid, Command command)
+		private async Task Communicator_OnClientSendCommand(Guid connectionUid, string textualCommand)
 		{
-			command.ConnectionUid = connectionUid;
+			ClientState clientState = await DiscoverClientStateAsync(connectionUid);
+
+			Command command = TextualCommandMapper.ToCommand(connectionUid, clientState, textualCommand);
 
 			await ChatFacade.ProcessMessageAsync(command);
+		}
+
+		private async Task<ClientState> DiscoverClientStateAsync(Guid connectionUid)
+		{
+			var client = await ChatFacade.GetClientByUidAsync(connectionUid);
+
+			if (client.HasNickname)
+				return ClientState.WaitingNickname;
+
+			return ClientState.ReadyToConversation;
 		}
 
 		private async Task Communicator_OnClientDisconnected(Guid connectionUid)
@@ -73,7 +90,9 @@ namespace Chat.Server.Application
 
 		private async Task MessageBroker_OnCommand(Command command)
 		{
-			await Communicator.PublishAsync(command.ConnectionUid, command);
+			string textualCommand = TextualCommandMapper.ToString(command);
+
+			await Communicator.PublishAsync(command.ConnectionUid, textualCommand);
 		}
 
 		private async Task DomainEvents_OnCommand(Client target, Command command)

@@ -1,4 +1,5 @@
 using Chat.Server.Application.Contracts;
+using Chat.Server.Application.Mappers;
 using Chat.Server.Communicator;
 using Chat.Server.Domain;
 using Chat.Server.Domain.Commands;
@@ -15,21 +16,23 @@ namespace Chat.Server.Application.Tests
 	public class ChatApplicationTest
 	{
 		ChatApplication ChatApplication;
-
+		Mock<ITextualCommandMapper> TextuaCommandMapperMock;
 		Mock<IChatFacade> ChatFacadeMock;
 		Mock<IMessageBroker> MessageBrokerMock;
-		Mock<ICommunicator<Command>> CommunicatorMock;
+		Mock<ICommunicator<string>> CommunicatorMock;
 		Mock<IDomainEvents> DomainEventsMock;
 
 		[SetUp]
 		public void Setup()
 		{
+			TextuaCommandMapperMock = new Mock<ITextualCommandMapper>();
 			ChatFacadeMock = new Mock<IChatFacade>();
 			MessageBrokerMock = new Mock<IMessageBroker>();
-			CommunicatorMock = new Mock<ICommunicator<Command>>();
+			CommunicatorMock = new Mock<ICommunicator<string>>();
 			DomainEventsMock = new Mock<IDomainEvents>();
 
 			ChatApplication = new ChatApplication(ChatFacadeMock.Object,
+				TextuaCommandMapperMock.Object,
 				MessageBrokerMock.Object,
 				CommunicatorMock.Object,
 				DomainEventsMock.Object);
