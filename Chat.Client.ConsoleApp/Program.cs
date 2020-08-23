@@ -18,6 +18,8 @@ namespace Chat.Client.ConsoleApp
 
 			ChatClient = new ChatClient(null);
 
+			ChatClient.OnDisconnected += ChatClient_OnDisconnected;
+
 			ChatClient.OnReceiveMessage += ChatClient_OnReceiveMessage;
 
 			CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -27,9 +29,14 @@ namespace Chat.Client.ConsoleApp
 			Application.Run();
 		}
 
+		private static void ChatClient_OnDisconnected()
+		{
+			ChatText.Text += "You is disconnected\n";
+		}
+
 		private static void ChatClient_OnReceiveMessage(string message)
 		{
-			ChatText.Text += message + "\n\r";
+			ChatText.Text += message + "\n";
 			Application.Refresh();
 		}
 

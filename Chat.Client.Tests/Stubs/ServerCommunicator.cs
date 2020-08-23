@@ -54,6 +54,8 @@ namespace Chat.Client.Tests.Stubs
 
 		public void Dispose()
 		{
+			ClientSocket.Close();
+			ClientSocket.Dispose();
 			Server.Close();
 			Server.Dispose();
 		}

@@ -12,6 +12,7 @@ namespace Chat.Server.Domain
 		Task SendPublicTargetedMessageAsync(Guid connectionUid, string theTargetedUser, IMessageContent theMessageContent);
 		Task SendNoticeMessageAsync(Guid connectionUid, string message);
 		Task UpdateNicknameAsync(Guid connectionUid, string theNickname);
+		Task UpdateRoomAsync(Guid connectionUid, string room);
 		Task DisconnectAsync(Guid connectionUid);
 	}
 }

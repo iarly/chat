@@ -52,12 +52,17 @@ namespace Chat.Server.Application.Mappers
 					return new ExitCommand(connectionUid);
 				}
 
-				if (message.StartsWith("/t"))
+				if (message.StartsWith("/room"))
+				{
+					return ConvertToSetRoomCommand(connectionUid, ref message);
+				}
+
+				if (message.StartsWith("/to"))
 				{
 					return ConvertToTargetedMessage(connectionUid, ref message);
 				}
 
-				if (message.StartsWith("/p"))
+				if (message.StartsWith("/private"))
 				{
 					return ConvertToPrivateMessage(connectionUid, ref message);
 				}
@@ -87,9 +92,22 @@ namespace Chat.Server.Application.Mappers
 			};
 		}
 
+		private static Command ConvertToSetRoomCommand(Guid connectionUid, ref string message)
+		{
+			Regex targetedMessageRegex = new Regex("/room (.*)");
+			var match = targetedMessageRegex.Match(message);
+			string room = match.Groups[1].Value;
+
+			return new SetRoomCommand
+			{
+				ConnectionUid = connectionUid,
+				Room = room
+			};
+		}
+
 		private static Command ConvertToTargetedMessage(Guid connectionUid, ref string message)
 		{
-			Regex targetedMessageRegex = new Regex("/t ([A-z]*) (.*)");
+			Regex targetedMessageRegex = new Regex("/to ([A-z]*) (.*)");
 			var match = targetedMessageRegex.Match(message);
 			string targetedNickname = match.Groups[1].Value;
 			message = match.Groups[2].Value;
@@ -105,7 +123,7 @@ namespace Chat.Server.Application.Mappers
 
 		private static Command ConvertToPrivateMessage(Guid connectionUid, ref string message)
 		{
-			Regex targetedMessageRegex = new Regex("/p ([A-z]*) (.*)");
+			Regex targetedMessageRegex = new Regex("/private ([A-z]*) (.*)");
 			var match = targetedMessageRegex.Match(message);
 			string targetedNickname = match.Groups[1].Value;
 			message = match.Groups[2].Value;

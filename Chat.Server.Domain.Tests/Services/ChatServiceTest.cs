@@ -37,7 +37,7 @@ namespace Chat.Server.Domain.Tests
 			// arrange
 			Guid expectedConnectionUid = Guid.NewGuid();
 			Client expectedClient = new Client() { ConnectionUid = expectedConnectionUid };
-			
+
 			Client actualClient = null;
 			DisconnectCommand actualCommand = null;
 
@@ -146,6 +146,86 @@ namespace Chat.Server.Domain.Tests
 		}
 
 		[Test]
+		public async Task Should_Update_Clients_Room_When_Updating_The_Current_User_Room()
+		{
+			// arrage
+			Guid connectionUid = Guid.NewGuid();
+			string room = "OtherRoom";
+			Client storedClient = new Client
+			{
+				Room = ""
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(connectionUid)).Returns(Task.FromResult(storedClient));
+
+			// act
+			await ChatFacade.UpdateRoomAsync(connectionUid, room);
+
+			// assert
+			Assert.AreEqual(room, storedClient.Room);
+			ClientRepositoryMock.Verify(mock => mock.UpdateAsync(storedClient), Times.Once);
+		}
+
+		[Test]
+		public async Task Should_Notice_Everyone_About_The_Entrant_User_When_Updating_The_Current_User_Room()
+		{
+			// arrage
+			Guid connectionUid = Guid.NewGuid();
+			string room = "OtherRoom";
+			Client storedClient = new Client
+			{
+				Room = ""
+			};
+
+			NoticeCommand joinNotice = null;
+
+			DomainEvents.OnCommand += (destination, command) =>
+			{
+				joinNotice = command as NoticeCommand;
+				return Task.CompletedTask;
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.GetAllClientInTheRoomAsync(room)).Returns(Task.FromResult(new List<Client> { storedClient }.AsEnumerable()));
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(connectionUid)).Returns(Task.FromResult(storedClient));
+
+			// act
+			await ChatFacade.UpdateRoomAsync(connectionUid, room);
+
+			// assert
+			Assert.IsNotNull(joinNotice);
+		}
+
+		[Test]
+		public async Task Should_Notice_Everyone_About_The_Users_Exit_When_Updating_The_Current_User_Room()
+		{
+			// arrage
+			Guid connectionUid = Guid.NewGuid();
+			string theRoomTheUserEntered = "the-new-room";
+			string theRoomTheUserHasLeft = "forgotten-room";
+			Client storedClient = new Client
+			{
+				Room = theRoomTheUserHasLeft
+			};
+
+			NoticeCommand leftNotice = null;
+
+			DomainEvents.OnCommand += (destination, command) =>
+			{
+				leftNotice = command as NoticeCommand;
+				return Task.CompletedTask;
+			};
+
+			ClientRepositoryMock.Setup(mock => mock.GetAllClientInTheRoomAsync(theRoomTheUserHasLeft)).Returns(Task.FromResult(new List<Client> { storedClient }.AsEnumerable()));
+			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(connectionUid)).Returns(Task.FromResult(storedClient));
+
+			// act
+			await ChatFacade.UpdateRoomAsync(connectionUid, theRoomTheUserEntered);
+
+			// assert
+			Assert.IsNotNull(leftNotice);
+		}
+
+		[Test]
 		public async Task Should_Update_The_Client_Information_With_They_Nickname_When_UpdateNickname()
 		{
 			// arrage
@@ -163,7 +243,7 @@ namespace Chat.Server.Domain.Tests
 
 			// assert
 			Assert.AreEqual(theNickname, storedClient.Nickname);
-			ClientRepositoryMock.Verify(mock => mock.UpdateAsync(storedClient), Times.Once);
+			ClientRepositoryMock.Verify(mock => mock.UpdateAsync(storedClient));
 		}
 
 		[Test]

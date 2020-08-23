@@ -12,6 +12,7 @@ namespace Chat.Server.Domain
 {
 	public class ChatService : IChatService
 	{
+		protected const string DefaultRoom = "general";
 		protected IDomainEvents DomainEvents { get; }
 		protected IClientFactory ClientFactory { get; }
 		protected IClientRepository ClientRepository { get; }
@@ -60,11 +61,25 @@ namespace Chat.Server.Domain
 
 			client.Nickname = theNickname;
 
-			UpdateClientRoomWhenRoomIsNotSet(theConnectionUid, client);
+			await ClientRepository.UpdateAsync(client);
+
+			await UpdateClientRoomWhenRoomIsNotSet(theConnectionUid, client);
+		}
+
+		public async Task UpdateRoomAsync(Guid connectionUid, string room)
+		{
+			Client client = await ClientRepository.GetByUidAsync(connectionUid);
+
+			if (!string.IsNullOrEmpty(client.Room))
+			{
+				await SendNoticeToEverybodyInTheRoom(client.Room, $"{client.Nickname} left the room");
+			}
+
+			client.Room = room;
 
 			await ClientRepository.UpdateAsync(client);
 
-			await SendNoticeToEverybodyInTheRoom(client.Room, $"{theNickname} entered at the room");
+			await SendNoticeToEverybodyInTheRoom(client.Room, $"{client.Nickname} entered at the {room}");
 		}
 
 		private static void ThrowsErrorIfNicknameIsInvalid(string theNickname)
@@ -217,11 +232,11 @@ namespace Chat.Server.Domain
 			}
 		}
 
-		private void UpdateClientRoomWhenRoomIsNotSet(Guid connectionUid, Client client)
+		private async Task UpdateClientRoomWhenRoomIsNotSet(Guid connectionUid, Client client)
 		{
 			if (string.IsNullOrEmpty(client.Room))
 			{
-				client.Room = "general";
+				await UpdateRoomAsync(connectionUid, DefaultRoom);
 			}
 		}
 

@@ -31,6 +31,37 @@ namespace Chat.Client.Tests
 		}
 
 		[Test]
+		public void Should_Notify_When_Disconnect_From_Server()
+		{
+			ManualResetEvent connectEvent = new ManualResetEvent(false);
+			ManualResetEvent disconnectEvent = new ManualResetEvent(false);
+
+			bool connected = false;
+
+			Server.OnClientConnected += () =>
+			{
+				connected = true;
+				connectEvent.Set();
+			};
+
+			ChatClient.OnDisconnected += () =>
+			{
+				connected = false;
+				disconnectEvent.Set();
+			};
+
+			ChatClient.ConnectTo("localhost", 22000, CancellationTokenSource.Token);
+
+			connectEvent.WaitOne(4000);
+
+			Server.Dispose();
+
+			disconnectEvent.WaitOne(4000);
+
+			Assert.IsFalse(connected);
+		}
+
+		[Test]
 		public void Should_Connect_To_Server()
 		{
 			ManualResetEvent manualResetEvent = new ManualResetEvent(false);

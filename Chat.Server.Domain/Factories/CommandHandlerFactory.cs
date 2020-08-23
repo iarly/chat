@@ -30,6 +30,9 @@ namespace Chat.Server.Domain.Factories
 			if (command.GetType() == typeof(ExitCommand))
 				return new ExitCommandHandler(ChatService);
 
+			if (command.GetType() == typeof(SetRoomCommand))
+				return new SetRoomCommandHandler(ChatService);
+
 			throw new CommandHandlerDoesNotExistsException();
 		}
 	}

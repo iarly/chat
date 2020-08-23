@@ -9,6 +9,9 @@ namespace Chat.Client
 {
 	public delegate void ReceiveMessage(string message);
 
+	public delegate void Disconnected();
+
+
 	public class ChatClient
 	{
 		public const string EOF = "\n\r";
@@ -28,6 +31,7 @@ namespace Chat.Client
 		public CancellationToken CancellationToken { get; private set; }
 
 		public event ReceiveMessage OnReceiveMessage;
+		public event Disconnected OnDisconnected;
 
 		public void ConnectTo(string host, int port, CancellationToken cancellationToken)
 		{
@@ -48,7 +52,7 @@ namespace Chat.Client
 		{
 			int receivedSize = Client.EndReceive(asyncResult);
 
-			if (receivedSize > -1)
+			if (receivedSize > 0)
 			{
 				ReceivedContent.Append(Encoding.ASCII.GetString(Buffer, 0, receivedSize));
 
@@ -68,7 +72,11 @@ namespace Chat.Client
 				}
 			}
 
-			if (!CancellationToken.IsCancellationRequested)
+			if (!Client.Connected)
+			{
+				OnDisconnected?.Invoke();
+			}
+			else if (!CancellationToken.IsCancellationRequested)
 			{
 				Client.BeginReceive(Buffer, 0, BufferSize, SocketFlags.None, new AsyncCallback(Client_OnReceive), null);
 			}

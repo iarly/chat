@@ -2,7 +2,7 @@
 
 namespace Chat.Server.Domain.Commands.Handlers
 {
-	public class DisconnectCommandHandler : CommandHandler<ConnectCommand>
+	public class DisconnectCommandHandler : CommandHandler<DisconnectCommand>
 	{
 		public DisconnectCommandHandler(IChatService chatService)
 		{
@@ -11,7 +11,7 @@ namespace Chat.Server.Domain.Commands.Handlers
 
 		public IChatService ChatService { get; }
 
-		protected override Task InternalProcessAsync(ConnectCommand command)
+		protected override Task InternalProcessAsync(DisconnectCommand command)
 		{
 			return ChatService.DisconnectAsync(command.ConnectionUid);
 		}
