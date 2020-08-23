@@ -4,6 +4,7 @@ using Chat.Server.Domain.Commands;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Chat.Server.Application.Mappers
 {
@@ -13,24 +14,55 @@ namespace Chat.Server.Application.Mappers
 		{
 			if (currentState == ClientState.WaitingNickname)
 			{
-				return new SetNicknameCommand
-				{
-					ConnectionUid = connectionUid,
-					Nickname = message
-				};
+				return ConvertToSetNicknameCommand(connectionUid, message);
 			}
 
 			if (currentState == ClientState.ReadyToConversation)
 			{
-				return new SendMessageCommand
+				if (message.StartsWith("/t"))
 				{
-					ConnectionUid = connectionUid,
-					Content = new TextMessageContent(message),
-					Private = false,
-				};
+					return ConvertToTargetedMessage(connectionUid, ref message);
+				}
+
+				return ConvertToPublicMessage(connectionUid, message);
 			}
 
 			return null;
+		}
+
+		private static Command ConvertToSetNicknameCommand(Guid connectionUid, string message)
+		{
+			return new SetNicknameCommand
+			{
+				ConnectionUid = connectionUid,
+				Nickname = message
+			};
+		}
+
+		private static Command ConvertToPublicMessage(Guid connectionUid, string message)
+		{
+			return new SendMessageCommand
+			{
+				ConnectionUid = connectionUid,
+				Content = new TextMessageContent(message),
+				Private = false,
+			};
+		}
+
+		private static Command ConvertToTargetedMessage(Guid connectionUid, ref string message)
+		{
+			Regex targetedMessageRegex = new Regex("/t ([A-z]*) (.*)");
+			var match = targetedMessageRegex.Match(message);
+			string targetedNickname = match.Groups[1].Value;
+			message = match.Groups[2].Value;
+
+			return new SendMessageCommand
+			{
+				ConnectionUid = connectionUid,
+				Content = new TextMessageContent(message),
+				TargetClientNickname = targetedNickname,
+				Private = false,
+			};
 		}
 	}
 }
