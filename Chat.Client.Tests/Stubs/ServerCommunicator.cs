@@ -7,7 +7,6 @@ using System.Text;
 
 namespace Chat.Client.Tests.Stubs
 {
-
 	public delegate void ClientConnected();
 
 	public class ServerCommunicator : IDisposable
