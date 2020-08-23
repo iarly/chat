@@ -20,6 +20,18 @@ namespace Chat.Server.Application.Tests.Mappers
 		}
 
 		[Test]
+		public void Should_Convert_SetNicknameCommand_To_Text()
+		{
+			string expectedText = "Welcome to our chat! Please provide a nickname.";
+
+			SetNicknameCommand messageCommand = new SetNicknameCommand();
+
+			string actualText = Mapper.ToString(messageCommand);
+
+			Assert.AreEqual(expectedText, actualText);
+		}
+
+		[Test]
 		public void Should_Convert_PropagateMessageCommand_To_Text()
 		{
 			string expectedMessage = "What's app? No, chat!";

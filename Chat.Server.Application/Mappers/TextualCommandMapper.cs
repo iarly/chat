@@ -13,6 +13,11 @@ namespace Chat.Server.Application.Mappers
 	{
 		public string ToString(Command command)
 		{
+			if (command is SetNicknameCommand)
+			{
+				return "Welcome to our chat! Please provide a nickname.";
+			}
+
 			if (command is PropagateMessageCommand messageCommand)
 			{
 				var textualContent = messageCommand.Content as TextMessageContent;
