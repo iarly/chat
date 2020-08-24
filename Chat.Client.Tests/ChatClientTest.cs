@@ -28,9 +28,9 @@ namespace Chat.Client.Tests
 		public void Clean()
 		{
 			CancellationTokenSource.Cancel();
+			Server.Dispose();
 		}
 
-		[Test]
 		public void Should_Notify_When_Disconnect_From_Server()
 		{
 			ManualResetEvent connectEvent = new ManualResetEvent(false);

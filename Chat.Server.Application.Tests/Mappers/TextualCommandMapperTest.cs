@@ -138,7 +138,7 @@ namespace Chat.Server.Application.Tests.Mappers
 		[Test]
 		public void Should_Convert_TargetedMessage_To_SendMessageCommand_When_ReadyToConversation()
 		{
-			string messageSentByClient = "/t Joey Hi Joey";
+			string messageSentByClient = "/to Joey Hi Joey";
 			string targetClientNickname = "Joey";
 			string expectedMessage = "Hi Joey";
 			ClientState currentStateOfClient = ClientState.ReadyToConversation;
@@ -156,7 +156,7 @@ namespace Chat.Server.Application.Tests.Mappers
 		[Test]
 		public void Should_Convert_PrivateMessage_To_SendMessageCommand_When_ReadyToConversation()
 		{
-			string messageSentByClient = "/p Sylvia Hi my darling.. :)";
+			string messageSentByClient = "/private Sylvia Hi my darling.. :)";
 			string targetClientNickname = "Sylvia";
 			string expectedMessage = "Hi my darling.. :)";
 			ClientState currentStateOfClient = ClientState.ReadyToConversation;
@@ -169,6 +169,20 @@ namespace Chat.Server.Application.Tests.Mappers
 			Assert.AreEqual(connectionUid, ((SendMessageCommand)command).ConnectionUid);
 			Assert.AreEqual(true, ((SendMessageCommand)command).Private);
 			Assert.AreEqual(targetClientNickname, ((SendMessageCommand)command).TargetClientNickname);
+		}
+
+		[Test]
+		public void Should_Convert_To_SetRoomCommand()
+		{
+			string messageSentByClient = "/room OtherRoom";
+			string expectedRoom = "OtherRoom";
+			ClientState currentStateOfClient = ClientState.ReadyToConversation;
+			Guid connectionUid = Guid.NewGuid();
+
+			Command command = Mapper.ToCommand(connectionUid, currentStateOfClient, messageSentByClient);
+
+			Assert.IsAssignableFrom<SetRoomCommand>(command);
+			Assert.AreEqual(expectedRoom, ((SetRoomCommand)command).Room);
 		}
 	}
 }
