@@ -163,6 +163,7 @@ namespace Chat.Server.Domain
 			ThrowsErrorWhenTargetClientDoesNotExists(target);
 
 			SendDirectMessageForTargetedClient(target, new TargetedMessage(sender, target, theMessageContent));
+			SendDirectMessageForTargetedClient(sender, new TargetedMessage(sender, target, theMessageContent));
 		}
 
 		private static void ThrowsErrorWhenTargetClientDoesNotExists(Client target)
@@ -194,7 +195,7 @@ namespace Chat.Server.Domain
 			DomainEvents.SendCommand(destination, new PropagateMessageCommand()
 			{
 				ConnectionUid = destination.ConnectionUid,
-				Target = destination,
+				Target = message.Target,
 				Sender = message.Sender,
 				Content = message.Content,
 				Private = true

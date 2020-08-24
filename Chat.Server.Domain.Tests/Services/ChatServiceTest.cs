@@ -441,7 +441,7 @@ namespace Chat.Server.Domain.Tests
 		}
 
 		[Test]
-		public async Task Should_Broadcast_A_Direct_Message_When_User_Sents_A_Private_Message()
+		public async Task Should_Send_A_Private_Message_To_ItSelf_And_Destination_When_User_Sents_A_Private_Message()
 		{
 			// arrage
 			string expectedRoom = "secret-room";
@@ -467,12 +467,23 @@ namespace Chat.Server.Domain.Tests
 			ClientRepositoryMock.Setup(mock => mock.GetByUidAsync(theConnectionUid)).Returns(Task.FromResult(senderClient));
 
 			Client actualDestinationClient = null;
-			PropagateMessageCommand actualCommand = null;
+			PropagateMessageCommand actualDestinationCommand = null;
+
+			Client actualSenderClient = null;
+			PropagateMessageCommand actualSenderCommand = null;
 
 			DomainEvents.OnCommand += (destination, command) =>
 			{
-				actualDestinationClient = destination;
-				actualCommand = command as PropagateMessageCommand;
+				if (actualDestinationClient == null)
+				{
+					actualDestinationClient = destination;
+					actualDestinationCommand = command as PropagateMessageCommand;
+				}
+				else
+				{
+					actualSenderClient = destination;
+					actualSenderCommand = command as PropagateMessageCommand;
+				}
 				return Task.CompletedTask;
 			};
 
@@ -481,11 +492,16 @@ namespace Chat.Server.Domain.Tests
 
 			// assert
 			Assert.AreEqual(targetedClient, actualDestinationClient);
-			Assert.NotNull(actualCommand);
+			Assert.NotNull(actualDestinationCommand);
 
-			Assert.AreEqual(theMessageContent, actualCommand.Content);
-			Assert.AreEqual(senderClient, actualCommand.Sender);
-			Assert.AreEqual(targetedClient, actualCommand.Target);
+			Assert.AreEqual(theMessageContent, actualDestinationCommand.Content);
+			Assert.AreEqual(senderClient, actualDestinationCommand.Sender);
+			Assert.AreEqual(targetedClient, actualDestinationCommand.Target);
+
+			Assert.AreEqual(actualSenderClient, senderClient);
+			Assert.AreEqual(theMessageContent, actualSenderCommand.Content);
+			Assert.AreEqual(senderClient, actualSenderCommand.Sender);
+			Assert.AreEqual(targetedClient, actualSenderCommand.Target);
 		}
 
 		[Test]
