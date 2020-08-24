@@ -22,8 +22,7 @@ namespace Chat.Server.Domain.Tests.Handlers
 		[Test]
 		public async Task Should_Disconnect_The_User()
 		{
-			var command = new DisconnectCommand();
-			command.ConnectionUid = Guid.NewGuid();
+			var command = new ExitCommand(Guid.NewGuid());
 
 			await ExitCommandHandler.ProcessAsync(command);
 
