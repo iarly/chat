@@ -6,6 +6,7 @@ using Chat.Server.Domain.Commands;
 using Chat.Server.Domain.Entities;
 using Chat.Server.Domain.Enumerators;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chat.Server.Application
@@ -41,9 +42,9 @@ namespace Chat.Server.Application
 			Communicator.OnClientSendCommand += Communicator_OnClientSendCommand;
 		}
 
-		public Task StartAsync()
+		public Task StartAsync(CancellationToken? cancellationToken = null)
 		{
-			return Communicator.ListenAsync(new System.Threading.CancellationToken());
+			return Communicator.ListenAsync(cancellationToken ?? new CancellationToken());
 		}
 
 		public void BindDomainEvents()

@@ -13,35 +13,52 @@ namespace Chat.Server.Data.InMemory
 
 		public Task<Client> FindByNicknameAsync(string nickname)
 		{
-			return Task.FromResult(Dataset.FirstOrDefault(client => client.Nickname == nickname));
+			lock (Dataset)
+			{
+				return Task.FromResult(Dataset.FirstOrDefault(client => client.Nickname == nickname));
+			}
 		}
 
 		public Task<IEnumerable<Client>> GetAllClientInTheRoomAsync(string room)
 		{
-			return Task.FromResult(Dataset.Where(client => client.Room == room));
+			lock (Dataset)
+			{
+				return Task.FromResult(Dataset.Where(client => client.Room == room).ToList().AsEnumerable());
+			}
 		}
 
 		public Task<Client> GetByUidAsync(Guid theConnectionUid)
 		{
-			return Task.FromResult(Dataset.FirstOrDefault(client => client.ConnectionUid == theConnectionUid));
+			lock (Dataset)
+			{
+				return Task.FromResult(Dataset.FirstOrDefault(client => client.ConnectionUid == theConnectionUid));
+			}
 		}
 
 		public Task StoreAsync(Client client)
 		{
-			Dataset.Add(client);
-			return Task.CompletedTask;
+			lock (Dataset)
+			{
+				Dataset.Add(client);
+				return Task.CompletedTask;
+			}
 		}
 
-		public async Task UpdateAsync(Client storedClient)
+		public Task UpdateAsync(Client storedClient)
 		{
-			var existentClient = await GetByUidAsync(storedClient.ConnectionUid);
-			
-			if (existentClient != null)
+			lock (Dataset)
 			{
-				Dataset.Remove(existentClient);
+				var existentClient = Dataset.FirstOrDefault(client => client.ConnectionUid == storedClient.ConnectionUid);
+
+				if (existentClient != null)
+				{
+					Dataset.Remove(existentClient);
+				}
+
+				Dataset.Add(storedClient);
 			}
 
-			await StoreAsync(storedClient);
+			return Task.CompletedTask;
 		}
 	}
 }
