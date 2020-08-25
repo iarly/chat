@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    command: redis-server --requirepass Redis2020!
+    ports:
+      - "6379:6379"
+      
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: MongoDB2020!
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./Chat.Server.Infra/mongoDb/:/data/db
+    networks:
+      - mongo-compose-network
+      
+networks: 
+    mongo-compose-network:
+      driver: bridge

@@ -12,6 +12,7 @@ using Chat.Server.Domain.Factories;
 using Chat.Server.Domain.Repositories;
 using Chat.Server.Domain.Services;
 using Chat.Server.MessageBroker.Local;
+using Chat.Server.MessageBroker.Redis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -41,19 +42,56 @@ namespace Chat.Server.IoC
 
 			services.AddSingleton<IChatFacade, ChatFacade>();
 			services.AddSingleton<IChatService, ChatService>();
-			services.AddSingleton<IClientRepository, ClientRepository>();
 
 			services.AddSingleton<IClientFactory, ClientFactory>();
 			services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
 
-			services.AddSingleton<IMessageBroker, DummyMessageBroker>();
 			services.AddSingleton<ICommunicator<string>, SocketCommunicator<string>>();
 
 			services.AddSingleton<ISerializer<Command>, CommandSerializer>();
 			services.AddSingleton<ISerializer<string>, StringSerializer>();
 			services.AddSingleton<ITextualCommandMapper, TextualCommandMapper>();
 
+			ConfigureDatabase(configuration, services);
+			ConfigurateMessageBroker(configuration, services);
+
 			ServiceProvider = services.BuildServiceProvider();
+		}
+
+		private static void ConfigureDatabase(IConfiguration configuration, ServiceCollection services)
+		{
+			string mongoDbConnection = configuration["mongoDbConnection"];
+			string mongoDbDatabase = configuration["mongoDbDatabase"];
+
+			if (string.IsNullOrEmpty(mongoDbConnection))
+			{
+				services.AddSingleton<IClientRepository, ClientRepository>();
+			}
+			else
+			{
+				services.AddSingleton<IClientRepository>(injector =>
+				{
+					return new Data.MongoDb.ClientRepository(mongoDbConnection, mongoDbDatabase);
+				});
+			}
+		}
+
+		private static void ConfigurateMessageBroker(IConfiguration configuration, ServiceCollection services)
+		{
+			string redisConfiguration = configuration["redis"];
+
+			if (string.IsNullOrEmpty(redisConfiguration))
+			{
+				services.AddSingleton<IMessageBroker, DummyMessageBroker>();
+			}
+			else
+			{
+				services.AddSingleton<IMessageBroker>(injector =>
+				{
+					var serializer = injector.GetService<ISerializer<Command>>();
+					return new RedisMessageBroker(redisConfiguration, serializer);
+				});
+			}
 		}
 	}
 }

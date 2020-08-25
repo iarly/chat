@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Threading;
 using Terminal.Gui;
 
@@ -10,8 +11,10 @@ namespace Chat.Client.ConsoleApp
 		public static ChatClient ChatClient { get; private set; }
 		public static Label ChatText { get; private set; }
 
-		static void Main()
+		static void Main(string[] args)
 		{
+			IConfiguration configuration = CreateConfiguration(args);
+
 			Application.Init();
 
 			CreateInterface();
@@ -24,9 +27,20 @@ namespace Chat.Client.ConsoleApp
 
 			CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-			ChatClient.ConnectTo("localhost", 33000, cancellationTokenSource.Token);
+			var host = configuration["host"] ?? "localhost";
+			var port = int.Parse(configuration["port"] ?? "33000");
+
+			ChatClient.ConnectTo(host, port, cancellationTokenSource.Token);
 
 			Application.Run();
+		}
+		private static IConfiguration CreateConfiguration(string[] args)
+		{
+			IConfiguration Configuration = new ConfigurationBuilder()
+			  .AddCommandLine(args)
+			  .Build();
+
+			return Configuration;
 		}
 
 		private static void ChatClient_OnDisconnected()
