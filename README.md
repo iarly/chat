@@ -83,6 +83,6 @@ $ dotnet run --project Chat.Client.ConsoleApp --port 34000
 --mongoDbDatabase <databaseName>: it sets the database of mongo (default is null)
 ```
 
-If you didn't set the redis or mongoDb configuration, the server will use the in-memory and dummy message-broker and it will not work as multi-instance.
+If you didn't set the redis or mongoDb configuration, the server will use the in-memory database and dummy message-broker and it will not work as multi-instance.
   
 
