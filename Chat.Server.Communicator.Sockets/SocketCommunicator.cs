@@ -47,15 +47,23 @@ namespace Chat.Server.Communicator.Sockets
 		{
 			CancellationToken = cancellationToken;
 
+			Console.Write($"Resolving {Host}...");
+
 			var hostEntry = Dns.GetHostEntry(Host);
 			var ipAddress = hostEntry.AddressList.First();
 			var endpoint = new IPEndPoint(ipAddress, Port);
+
+			Console.Write(ipAddress.ToString());
 
 			try
 			{
 				using (Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
 				{
+					Console.Write("Binding...");
+
 					listener.Bind(endpoint);
+
+					Console.Write("Listening...");
 
 					listener.Listen(MaxRequestsAtTime);
 

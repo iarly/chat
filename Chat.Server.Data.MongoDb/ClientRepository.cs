@@ -10,22 +10,36 @@ namespace Chat.Server.Data.MongoDb
 {
 	public class ClientRepository : IClientRepository
 	{
-		protected readonly IMongoCollection<Client> DbSet;
-		protected MongoClient MongoClient { get; }
-		protected IMongoDatabase Database { get; }
+		protected IMongoCollection<Client> _DbSet;
+		protected MongoClient MongoClient { get; set; }
+		protected IMongoDatabase Database { get; set; }
+		protected string MongoDbConnection { get; }
+		protected string MongoDbDatabase { get; }
+
+		protected IMongoCollection<Client> DbSet
+		{
+			get
+			{
+				if (_DbSet == null)
+				{
+					MongoClient = new MongoClient(MongoDbConnection);
+					Database = MongoClient.GetDatabase(MongoDbDatabase);
+					_DbSet = Database.GetCollection<Client>(nameof(Client));
+				}
+
+				return _DbSet;
+			}
+		}
 
 		public ClientRepository(string mongoDbConnection, string mongoDbDatabase)
 		{
-			MongoClient = new MongoClient(mongoDbConnection);
-			Database = MongoClient.GetDatabase(mongoDbDatabase);
-
 			BsonClassMap.RegisterClassMap<Client>(cm =>
 			{
 				cm.AutoMap();
 				cm.MapIdField(client => client.ConnectionUid);
 			});
-
-			DbSet = Database.GetCollection<Client>(nameof(Client));
+			MongoDbConnection = mongoDbConnection;
+			MongoDbDatabase = mongoDbDatabase;
 		}
 
 		public async Task<Client> FindByNicknameAsync(string nickname)

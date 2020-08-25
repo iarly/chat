@@ -19,6 +19,8 @@ namespace Chat.Server
 			InjectionConfig.Get<ICommunicator<string>>().OnClientDisconnected += Communicator_OnClientDisconnected;
 			InjectionConfig.Get<ICommunicator<string>>().OnClientSendCommand += Communicator_OnClientSendCommand;
 
+			Console.WriteLine($"Starting Chat Server...");
+
 			await InjectionConfig.Get<ChatApplication>().StartAsync();
 		}
 
@@ -45,6 +47,7 @@ namespace Chat.Server
 			IConfiguration Configuration = new ConfigurationBuilder()
 			  .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 			  .AddCommandLine(args)
+			  .AddEnvironmentVariables()
 			  .Build();
 
 			return Configuration;

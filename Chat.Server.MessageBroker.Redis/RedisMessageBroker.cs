@@ -16,13 +16,26 @@ namespace Chat.Server.MessageBroker.Redis
 
 		public RedisMessageBroker(string configuration, ISerializer<Command> serializer)
 		{
-			Redis = ConnectionMultiplexer.Connect(configuration);
+			Configuration = configuration;
 			Serializer = serializer;
 		}
 
-		public ConnectionMultiplexer Redis { get; }
-		public CancellationToken CancellationToken { get; }
-		public ISerializer<Command> Serializer { get; }
+		protected ConnectionMultiplexer _Redis;
+		protected ConnectionMultiplexer Redis
+		{
+			get
+			{
+				if (_Redis == null)
+				{
+					_Redis = ConnectionMultiplexer.Connect(Configuration);
+				}
+
+				return _Redis;
+			}
+		}
+		protected CancellationToken CancellationToken { get; }
+		protected string Configuration { get; }
+		protected ISerializer<Command> Serializer { get; }
 
 		public async Task PublishAsync(Command command)
 		{
