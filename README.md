@@ -5,7 +5,7 @@ Iarly's Chat is a cloud-ready chat.
 The Chat was written in .NET Core and can be executed in multiple server instances.
 The diagram below represents the flow of a message through a multi-server environment.
 
-[./doc/model.png]
+![alt text](https://github.com/iarly/chat/raw/master/doc/model.png "The diagram below represents the flow of a message through a multi-server environment.")
 
 At the border, the nginx control the load-balance of the multiples server instances. 
 The communication between each server occurs through the Redis Message Broker.
