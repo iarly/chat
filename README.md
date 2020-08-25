@@ -59,24 +59,30 @@ $ dotnet run --project Chat.Client.ConsoleApp --port 34000
 
 ## Commands
 
+```
 - /to <nickname> <message>: it sends a public message to another user
 - /private <nickname> <message>: it sends a private message to another user
 - /room <room>: it changes the current room of user
 - /exit: it disconnects the user
+```
   
-## (Optional) Client arguments
+## (Optional) Chat.Client.ConsoleApp arguments
 
+```
 --host <hostname>: it sets the host of the server (default is localhost)
 --port <portnumber>: it sets the port of the server (default is 33000)
+```
 
-## (Optional) Server arguments / environments variables
+## (Optional) Chat.Server arguments / environments variables
 
+```
 --host <hostname>: it sets the network interface where the socket is bound (default is localhost)
 --port <portnumber: its sets the port number of the server (default 33000)
---redis <connectionString>: it sets the connection string of Redis Server (default is null)*
---mongoDbConnection <connectionString>: it sets the connection stirng of mongo (default is null)*
---mongoDbDatabase <databaseName>: it sets the database of mongo (default is null)*
-  
-* If you didn't set the redis or mongoDb configuration, the server will use the in-memory and dummy message-broker and it will not work as multi-instance.
+--redis <connectionString>: it sets the connection string of Redis Server (default is null)
+--mongoDbConnection <connectionString>: it sets the connection stirng of mongo (default is null)
+--mongoDbDatabase <databaseName>: it sets the database of mongo (default is null)
+```
+
+If you didn't set the redis or mongoDb configuration, the server will use the in-memory and dummy message-broker and it will not work as multi-instance.
   
 
